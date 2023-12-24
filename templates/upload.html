@@ -1,0 +1,20 @@
+{% extends "base.html" %} {% block content %}
+
+<form method="POST" action="/upload" enctype="multipart/form-data">
+    <input
+        class="form-control"
+        placeholder="대학교 검색"
+        list="browsers"
+        id="school"
+        name="school"
+    />
+    <datalist id="browsers">
+        {% for school in schools %}
+        <option value="{{ school.schoolname }}"></option>
+        {% endfor %}
+    </datalist>
+    <input type="file" name="image" class="custom-file-input" id="file" />
+    <input type="submit" value="글쓰기" class="btn btn-outline-primary" />
+</form>
+
+{% endblock %}

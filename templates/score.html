@@ -1,0 +1,27 @@
+{% extends "base.html" %} {% block content %}
+
+<br /><br /><br />
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-3">
+            <form action="/score" method="get">
+                <input class="form-control" placeholder="대학교 검색" list="browsers" id="school" name="school" />
+                <datalist id="browsers">
+                    {% for school in schools %}
+                    <option value="{{ school.schoolname }}"></option>
+                    {% endfor %}
+                </datalist>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        {% if selected_school %}
+        <img src="{{ selected_school.school_image }}" />
+        {{ selected_school.school_name }} {{ selected_school.score }} 
+        해당 대학교에 점수를 매겨주세요
+    </div>
+    <form action="/score" method="post"></form>
+    {% endif %}
+</div>
+
+{% endblock %}
