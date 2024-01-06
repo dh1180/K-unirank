@@ -17,12 +17,15 @@
         <table style="">
             <tr>
                 <td>순위</td>
-                <td>대학교 이름</td>
+                <td colspan="2">대학교 이름</td>
                 <td>점수</td>
             </tr>
             {% for school in schools %} 
             <tr>
                 <td>{{ loop.index }}</td>
+                {% if school.school_image %}
+                <td width="150" height="70"><img src="{{ url_for('static', filename=school.school_image) }}" style="width: 50px;" /></td>
+                {% endif %}
                 <td>{{ school.school_name }}</td>
                 <td>{{ school.score }}</td>
             </tr>
@@ -30,5 +33,7 @@
             {% endfor %}
         </table>
     </div>
-    {% endblock %}
+
 </div>
+
+{% endblock %}

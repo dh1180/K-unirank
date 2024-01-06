@@ -2,17 +2,11 @@ import os
 from flask import Flask, render_template, request
 import requests
 from flask_sqlalchemy import SQLAlchemy
-from flask_uploads import UploadSet, configure_uploads, IMAGES
 
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///school.db'  # SQLite 사용 예시
 db = SQLAlchemy(app)
-
-photos = UploadSet('photos', IMAGES)
-app.config['UPLOADED_PHOTOS_DEST'] = 'K-unirank/media/school_image'  # 이미지가 저장될 경로 설정
-
-configure_uploads(app, photos)
 
 
 class School(db.Model):
@@ -58,22 +52,18 @@ def score():
     return render_template('score.html', schools=schools, selected_school=selected_school)
 
 
-@app.route('/upload')
+@app.route('/upload', methods=['GET', 'POST'])
 def upload():
     schools = School.query.order_by(School.score.desc()).all()
-    return render_template('upload.html', schools=schools)
-
-
-@app.route('/upload', methods=['POST'])
-def upload():
-    school = request.form['school']
-    selected_school = School.query.filter_by(school_name=school).first()
-    if 'image' in request.files:
+    if request.method == 'POST':
+        school = request.form['school']
+        selected_school = School.query.filter_by(school_name=school).first()
         image = request.files['image']
-        image.save('K-unirank/media/school_image' + image.filename)
-        selected_school.school_image = 'K-unirank/media/school_image' + image.filename  # 이미지 정보를 데이터베이스에 추가
+        image.save('/workspace/K-unirank/static/school_image/' + image.filename)
+        selected_school.school_image = 'school_image/' + image.filename
         db.session.commit()
-        return 'Image uploaded successfully'
+        return render_template('index.html', schools=schools)
+    return render_template('upload.html', schools=schools)
 
 
 if __name__ == "__main__":
