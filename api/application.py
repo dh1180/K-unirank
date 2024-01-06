@@ -65,9 +65,9 @@ def upload():
         return render_template('index.html', schools=schools)
     return render_template('upload.html', schools=schools)
 
-
+"""
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=80, debug=True)
-
+"""
 
 
