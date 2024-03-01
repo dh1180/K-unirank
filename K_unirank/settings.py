@@ -24,12 +24,9 @@ SECRET_KEY = '4s#no*12@@ih+zkli)#m_r39-n#r4@c51!cgxiy@r!d8tmmt3-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-SECURE_HSTS_SECONDS = 31536000  # 1년(초)
 SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -48,20 +45,17 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.kakao',
-    'allauth.socialaccount.providers.github',
     'mathfilters',
     'vote',
 ]
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '238429423031-098fru40hmg28deqg9j32gjhk5c8t26p.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '958250892002-vlsjt427tlsaqss8obm4rg9jmckevvlp.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
 
-SOCIAL_AUTH_KAKAO_OAUTH2_KEY = 'b97834aa38f0fd9bd7a8f6946a4807c3'
-SOCIAL_AUTH_KAKAO_OAUTH2_SECRET = 'qUvUrNCc5p4WDDikybYrbm9h1oDOD8X6'
-
-SOCIAL_AUTH_GITHUB_OAUTH2_KEY = 'b319fd8a60f1cbbc4dd4'
-SOCIAL_AUTH_GITHUB_OAUTH2_SECRET = '2ceb006b0f29ad06faf9eb486ae9d4ee6b6a2734'
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -76,34 +70,15 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     },
 
-    'kakao': {
-        'SCOPE': [
-            'profile_nickname',
-        ],
-        'APP': {
-            'client_id': SOCIAL_AUTH_KAKAO_OAUTH2_KEY,
-            'secret': SOCIAL_AUTH_KAKAO_OAUTH2_SECRET,
-            'key': '',
-        }
-    },
-
-    'github': {
-        'SCOPE': [
-            'user',
-        ],
-        'APP': {
-            'client_id': SOCIAL_AUTH_GITHUB_OAUTH2_KEY,
-            'secret': SOCIAL_AUTH_GITHUB_OAUTH2_SECRET,
-            'key': '',
-        }
-    }
 }
 
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = False
+
 ACCOUNT_LOGOUT_ON_GET = True
 LOGIN_REDIRECT_URL = 'vote:school_list'
-ROOT_URLCONF = 'K_unirank.urls'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
