@@ -39,7 +39,7 @@
                 </td>
                 {% endif %}
                  
-                <td>{{ school.school_name }}
+                <td width="70%">{{ school.school_name }}
                 {% if user.is_authenticated %}
                 {% if school in voted_school %}
                 ✔
@@ -50,7 +50,7 @@
                 
                 </td>
                
-                <td width="20%"> {{ school.get_average_score }}</td>
+                <td width="10%"> {{ school.get_average_score }}</td>
             </tr>
             
             {% endfor %}
