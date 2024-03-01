@@ -24,13 +24,13 @@
                 <th scope="col" colspan="2">로고 / 대학교 이름</th>
                 <th scope="col">점수</th>
             </tr>
-            {% for school, score in myzip %}
+            {% for school, rank in myzip %}
             <tr>       
-                <td width="10%">{{ score }}</td>
+                <td width="10%">{{ rank }}</td>
 
                 
                 {% if school.school_image %}
-                <td width="10%" class="text-center">
+                <td width="10%" class="text-center" height="100">
                     <img src="{{ school.school_image.url }}" style="height: 6vw"/>
                 </td>
                 {% else %}
@@ -50,7 +50,7 @@
                 
                 </td>
                
-                <td width="10%"> {{ school.get_average_score }}</td>
+                <td width="10%"> {{ school.get_average_score|floatformat:3 }}</td>
             </tr>
             
             {% endfor %}
