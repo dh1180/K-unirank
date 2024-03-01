@@ -1,4 +1,5 @@
-from allauth.socialaccount.adapter import get_adapter
+import requests
+
 from allauth.socialaccount.providers.oauth2.views import (
     OAuth2Adapter,
     OAuth2CallbackView,
@@ -16,10 +17,8 @@ class WeiboOAuth2Adapter(OAuth2Adapter):
 
     def complete_login(self, request, app, token, **kwargs):
         uid = kwargs.get("response", {}).get("uid")
-        resp = (
-            get_adapter()
-            .get_requests_session()
-            .get(self.profile_url, params={"access_token": token.token, "uid": uid})
+        resp = requests.get(
+            self.profile_url, params={"access_token": token.token, "uid": uid}
         )
         extra_data = resp.json()
         return self.get_provider().sociallogin_from_response(request, extra_data)

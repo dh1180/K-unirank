@@ -30,8 +30,6 @@ def school_list(request):
             scores.append(num+1)
             num += 1 + tf
             tf = 0
-    
-
     if request.user.is_authenticated:
         voted_school = School.objects.filter(voted_users=request.user)
         myzip = zip(schools, scores)
@@ -45,7 +43,7 @@ def school_list(request):
             new_school.save()
         else:
             continue
-            
+
     myzip = zip(schools, scores)
     return render(request, 'vote/school_list.html', {'myzip': myzip})
 

@@ -1,4 +1,5 @@
-from allauth.socialaccount.adapter import get_adapter
+import requests
+
 from allauth.socialaccount.providers.globus.provider import GlobusProvider
 from allauth.socialaccount.providers.oauth2.views import (
     OAuth2Adapter,
@@ -18,16 +19,12 @@ class GlobusAdapter(OAuth2Adapter):
     profile_url = "{0}/userinfo".format(provider_base_url)
 
     def complete_login(self, request, app, token, response):
-        extra_data = (
-            get_adapter()
-            .get_requests_session()
-            .get(
-                self.profile_url,
-                params={"access_token": token.token},
-                headers={
-                    "Authorization": "Bearer " + token.token,
-                },
-            )
+        extra_data = requests.get(
+            self.profile_url,
+            params={"access_token": token.token},
+            headers={
+                "Authorization": "Bearer " + token.token,
+            },
         )
 
         return self.get_provider().sociallogin_from_response(request, extra_data.json())

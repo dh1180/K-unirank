@@ -1,4 +1,5 @@
-from allauth.socialaccount.adapter import get_adapter
+import requests
+
 from allauth.socialaccount.providers.oauth2.views import (
     OAuth2Adapter,
     OAuth2CallbackView,
@@ -33,7 +34,7 @@ class QuickBooksOAuth2Adapter(OAuth2Adapter):
         }
         is_sandbox = self.get_provider().get_settings().get("SANDBOX", False)
         url = self.profile_test if is_sandbox else self.profile_url
-        resp = get_adapter().get_requests_session().get(url, headers=headers)
+        resp = requests.get(url, headers=headers)
         resp.raise_for_status()
         return resp.json()
 

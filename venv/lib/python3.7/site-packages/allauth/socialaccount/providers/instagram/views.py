@@ -1,4 +1,5 @@
-from allauth.socialaccount.adapter import get_adapter
+import requests
+
 from allauth.socialaccount.providers.oauth2.views import (
     OAuth2Adapter,
     OAuth2CallbackView,
@@ -15,13 +16,9 @@ class InstagramOAuth2Adapter(OAuth2Adapter):
     profile_url = "https://graph.instagram.com/me"
 
     def complete_login(self, request, app, token, **kwargs):
-        resp = (
-            get_adapter()
-            .get_requests_session()
-            .get(
-                self.profile_url,
-                params={"access_token": token.token, "fields": ["id", "username"]},
-            )
+        resp = requests.get(
+            self.profile_url,
+            params={"access_token": token.token, "fields": ["id", "username"]},
         )
         resp.raise_for_status()
         extra_data = resp.json()

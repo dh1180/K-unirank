@@ -1,5 +1,6 @@
+import requests
+
 from allauth.socialaccount import app_settings
-from allauth.socialaccount.adapter import get_adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Error
 from allauth.socialaccount.providers.oauth2.views import (
     OAuth2Adapter,
@@ -37,11 +38,7 @@ class SnapchatOAuth2Adapter(OAuth2Adapter):
             data = {"query": "{ me { externalId displayName bitmoji { avatar id } } }"}
         else:
             data = {"query": "{ me { externalId displayName } }"}
-        resp = (
-            get_adapter()
-            .get_requests_session()
-            .post(self.identity_url, headers=hed, json=data)
-        )
+        resp = requests.post(self.identity_url, headers=hed, json=data)
         resp.raise_for_status()
         resp = resp.json()
 

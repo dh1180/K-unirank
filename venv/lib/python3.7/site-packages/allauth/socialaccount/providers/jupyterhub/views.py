@@ -1,5 +1,6 @@
+import requests
+
 from allauth.socialaccount import app_settings
-from allauth.socialaccount.adapter import get_adapter
 from allauth.socialaccount.providers.jupyterhub.provider import (
     JupyterHubProvider,
 )
@@ -23,9 +24,7 @@ class JupyterHubAdapter(OAuth2Adapter):
     def complete_login(self, request, app, access_token, **kwargs):
         headers = {"Authorization": "Bearer {0}".format(access_token)}
 
-        extra_data = (
-            get_adapter().get_requests_session().get(self.profile_url, headers=headers)
-        )
+        extra_data = requests.get(self.profile_url, headers=headers)
 
         user_profile = extra_data.json()
 

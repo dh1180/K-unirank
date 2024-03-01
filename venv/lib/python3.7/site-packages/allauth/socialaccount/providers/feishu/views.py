@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import requests
+
 from django.urls import reverse
 
 from allauth.account import app_settings
-from allauth.socialaccount.adapter import get_adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Error
 from allauth.socialaccount.providers.oauth2.views import (
     OAuth2Adapter,
@@ -33,16 +34,12 @@ class FeishuOAuth2Adapter(OAuth2Adapter):
         return url
 
     def complete_login(self, request, app, token, **kwargs):
-        resp = (
-            get_adapter()
-            .get_requests_session()
-            .get(
-                self.user_info_url,
-                headers={
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer " + token.token,
-                },
-            )
+        resp = requests.get(
+            self.user_info_url,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token.token,
+            },
         )
         resp.raise_for_status()
         extra_data = resp.json()

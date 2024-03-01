@@ -3,7 +3,8 @@ Views for PatreonProvider
 https://www.patreon.com/platform/documentation/oauth
 """
 
-from allauth.socialaccount.adapter import get_adapter
+import requests
+
 from allauth.socialaccount.providers.oauth2.views import (
     OAuth2Adapter,
     OAuth2CallbackView,
@@ -27,13 +28,9 @@ class PatreonOAuth2Adapter(OAuth2Adapter):
     )
 
     def complete_login(self, request, app, token, **kwargs):
-        resp = (
-            get_adapter()
-            .get_requests_session()
-            .get(
-                self.profile_url,
-                headers={"Authorization": "Bearer " + token.token},
-            )
+        resp = requests.get(
+            self.profile_url,
+            headers={"Authorization": "Bearer " + token.token},
         )
         extra_data = resp.json().get("data")
 
@@ -45,13 +42,9 @@ class PatreonOAuth2Adapter(OAuth2Adapter):
                     "{0}/members/{1}?include="
                     "currently_entitled_tiers&fields%5Btier%5D=title"
                 ).format(API_URL, member_id)
-                resp_member = (
-                    get_adapter()
-                    .get_requests_session()
-                    .get(
-                        member_url,
-                        headers={"Authorization": "Bearer " + token.token},
-                    )
+                resp_member = requests.get(
+                    member_url,
+                    headers={"Authorization": "Bearer " + token.token},
                 )
                 pledge_title = resp_member.json()["included"][0]["attributes"]["title"]
                 extra_data["pledge_level"] = pledge_title

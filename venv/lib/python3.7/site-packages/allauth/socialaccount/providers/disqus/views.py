@@ -1,4 +1,5 @@
-from allauth.socialaccount.adapter import get_adapter
+import requests
+
 from allauth.socialaccount.providers.oauth2.views import (
     OAuth2Adapter,
     OAuth2CallbackView,
@@ -16,17 +17,13 @@ class DisqusOAuth2Adapter(OAuth2Adapter):
     scope_delimiter = ","
 
     def complete_login(self, request, app, token, **kwargs):
-        resp = (
-            get_adapter()
-            .get_requests_session()
-            .get(
-                self.profile_url,
-                params={
-                    "access_token": token.token,
-                    "api_key": app.client_id,
-                    "api_secret": app.secret,
-                },
-            )
+        resp = requests.get(
+            self.profile_url,
+            params={
+                "access_token": token.token,
+                "api_key": app.client_id,
+                "api_secret": app.secret,
+            },
         )
         resp.raise_for_status()
 

@@ -1,4 +1,5 @@
-from allauth.socialaccount.adapter import get_adapter
+import requests
+
 from allauth.socialaccount.providers.oauth2.views import (
     OAuth2Adapter,
     OAuth2CallbackView,
@@ -15,10 +16,8 @@ class SpotifyOAuth2Adapter(OAuth2Adapter):
     profile_url = "https://api.spotify.com/v1/me"
 
     def complete_login(self, request, app, token, **kwargs):
-        extra_data = (
-            get_adapter()
-            .get_requests_session()
-            .get(self.profile_url, params={"access_token": token.token})
+        extra_data = requests.get(
+            self.profile_url, params={"access_token": token.token}
         )
 
         return self.get_provider().sociallogin_from_response(request, extra_data.json())

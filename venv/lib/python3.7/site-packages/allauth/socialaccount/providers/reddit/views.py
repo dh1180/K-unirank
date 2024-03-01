@@ -1,5 +1,6 @@
+import requests
+
 from allauth.socialaccount import app_settings
-from allauth.socialaccount.adapter import get_adapter
 from allauth.socialaccount.providers.oauth2.views import (
     OAuth2Adapter,
     OAuth2CallbackView,
@@ -23,9 +24,7 @@ class RedditAdapter(OAuth2Adapter):
     def complete_login(self, request, app, token, **kwargs):
         headers = {"Authorization": "bearer " + token.token}
         headers.update(self.headers)
-        extra_data = (
-            get_adapter().get_requests_session().get(self.profile_url, headers=headers)
-        )
+        extra_data = requests.get(self.profile_url, headers=headers)
 
         # This only here because of weird response from the test suite
         if isinstance(extra_data, list):

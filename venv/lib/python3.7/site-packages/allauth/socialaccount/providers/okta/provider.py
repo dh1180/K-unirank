@@ -31,15 +31,11 @@ class OktaProvider(OAuth2Provider):
         ]
 
     def extract_common_fields(self, data):
-        ret = dict(
+        return dict(
             email=data["email"],
             last_name=data["family_name"],
             first_name=data["given_name"],
         )
-        preferred_username = data.get("preferred_username")
-        if preferred_username:
-            ret["username"] = preferred_username.partition("@")[0]
-        return ret
 
 
 provider_classes = [OktaProvider]
