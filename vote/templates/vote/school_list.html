@@ -1,0 +1,61 @@
+{% extends "vote/base.html" %} {% block content %} {% load humanize %}
+
+<style>
+    tr:not(.disabled):hover {
+        background-color: #e2e2e2;
+    }
+
+	.updown {
+    	border: 1px solid #e2e2e2;
+        width: 1px;
+        height: 150px;
+    }
+</style>
+<br /><br /><br />
+
+<div class="container">
+    <div class="row">
+        <span>* 이원화 캠퍼스는 투표 대상에서 제외합니다.</span>
+        <p>* 대학교의 점수는 사람들의 투표로 결정되며 만점은 401점입니다.</p>
+        
+        <table class="table align-middle">
+            <tr class="disabled">
+                <th scope="col">순위</th>
+                <th scope="col" colspan="2">로고 / 대학교 이름</th>
+                <th scope="col">점수</th>
+            </tr>
+            {% for school, score in myzip %}
+            <tr>       
+                <td width="10%">{{ score }}</td>
+
+                
+                {% if school.school_image %}
+                <td width="10%" class="text-center">
+                    <img src="{{ school.school_image.url }}" style="height: 6vw"/>
+                </td>
+                {% else %}
+                <td width="10%">
+                    <img src="" style="width: 100px" />
+                </td>
+                {% endif %}
+                 
+                <td>{{ school.school_name }}
+                {% if user.is_authenticated %}
+                {% if school in voted_school %}
+                ✔
+                {% else %}
+                ❌
+                {% endif %}
+                {% endif %}
+                
+                </td>
+               
+                <td width="20%"> {{ school.get_average_score }}</td>
+            </tr>
+            
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+{% endblock %}

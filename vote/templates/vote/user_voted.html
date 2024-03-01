@@ -1,0 +1,95 @@
+{% extends "vote/base.html" %} {% block content %}
+{% load mathfilters %}
+
+<style>
+    div.left {
+        width: 50%;
+        float: left;
+        box-sizing: border-box;
+        border: 1px solid;
+        border-radius: 20px;
+        border-color:gray;
+    }
+    div.right {
+        width: 50%;
+        float: right;
+        box-sizing: border-box;
+        border: 1px solid;
+        border-radius: 20px;
+        border-color:gray;
+    }
+</style>
+
+<br /><br /><br />
+<div class="container">
+    <div class="row">
+
+        <div class="col-12">
+            <input type="button" class="btn btn-outline-danger mb-5" data-bs-toggle="modal" data-bs-target="#delete" value="계정 삭제" />
+        </div>
+        <div class="left">
+            <br />
+            <h3>✔투표한 학교 </h3>
+            <hr />
+            <br />
+            {% for school in voted_school %}
+            <div class="col">
+                
+                <form
+                    action="{% url 'vote:vote_delete' school.school.pk school.pk %}"
+                    method="POST"
+                >
+                    {% csrf_token %}
+                    <h5>{{school.school.school_name}} {{ school.individual_score|add:-402|abs }}등
+                    <input type="submit" class="btn btn-outline-danger" value="투표 취소하기" />
+                    </h5>
+                    <hr />
+                    
+                </form>
+                                
+                
+            </div>
+            {% endfor %}
+        </div>
+        <div class="right">
+            <br />
+            <h3>❌투표 하지 않은 학교</h3>
+            <hr />
+            <br />
+
+            {% for not_school in not_voted_school %}
+            <div class="col">
+                <h5>{{not_school.school_name}}</h5>
+            </div>
+            <hr />
+            {% endfor %}
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="delete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <p class="modal-title" id="exampleModalLabel">계정 삭제</p>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          계정을 삭제하시겠습니까?
+          <br />
+          (계정 삭제 시 투표내역이 모두 삭제됩니다.)
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+        <form action="{% url 'vote:user_delete' %}" method="POST">
+            {% csrf_token %}
+            <input type="submit" class="btn btn-danger" value="삭제" />
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

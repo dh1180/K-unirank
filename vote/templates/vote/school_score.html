@@ -1,0 +1,58 @@
+{% extends "vote/base.html" %} {% block content %}
+
+
+
+<br /><br /><br />
+<script>
+{% if messages %}
+ {% for message in messages %}
+		alert("{{ message.message }}")
+ {% endfor %}
+{% endif %}
+</script>
+<div class="container">
+    <div class="row">
+        <form method="POST">
+            <div class="d-grid gap-2 col-md-7 mx-auto">
+                <input type="submit" value="투표하기" class="btn btn-outline-primary" />
+                <span>
+                    * 특정 순위를 생략하고 투표할 수 있습니다. (1등을 투표하지 않고 2, 3등에 투표 가능.)
+                </span>
+                <span>
+                    * 같은 순위에 여러 대학교를 투표할 수 있습니다. (2등에 투표 -> 새로고침 -> 2등에 다른 대학 투표)
+                </span>
+                <p>
+                    * 투표 한 대학교는 대학이름 옆에 ✔가 표시됩니다.
+                </p>
+            </div>
+            <br />
+            <table class="table">
+                <tr>
+                    <th scope="col">순위</th>
+                    <th scope="col" colspan="2">대학교 이름</th>
+                </tr>
+
+                {% csrf_token %} {% for school in schools %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                        <input
+                            class="form-control"
+                            placeholder="대학교 검색"
+                            list="browsers"
+                            name="school_name[]"
+                        />
+                        <datalist id="browsers">
+                            {% for school in schools %}
+                            <option value="{{ school.school_name }}"></option>
+                            {% endfor %}
+                        </datalist>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
