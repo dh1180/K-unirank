@@ -64,10 +64,10 @@
                             <a class="nav-link active" aria-current="page" href="{% url 'vote:school_score' %}">랭킹 투표하기</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="{% url 'account_logout' %}">로그아웃</a>
+                            <a class="nav-link active" href="{% url 'vote:user_voted' %}">내 정보</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="{% url 'vote:user_voted' %}">내 정보</a>
+                            <a class="nav-link active" href="{% url 'account_logout' %}">로그아웃</a>
                         </li>
                         {% else %}
                         <li class="nav-item">
@@ -75,6 +75,13 @@
                         </li>
 
                         {% endif %}
+                        
+                        {% if user.is_superuser %}
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{% url 'vote:upload' %}">대학 로고 업로드</a>
+                        </li>
+                        {% endif %}
+                        
                     </ul>
                 </div>
             </div>
