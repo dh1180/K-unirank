@@ -22,7 +22,7 @@ def school_list(request):
 
     num = 0
     tf = 0
-    for i in range(400):
+    for i in range(399):
         if(li[i] == li[i+1]):
             scores.append(num+1)
             tf += 1
@@ -34,7 +34,7 @@ def school_list(request):
         voted_school = School.objects.filter(voted_users=request.user)
         myzip = zip(schools, scores)
         return render(request, 'vote/school_list.html', {'myzip': myzip, 'voted_school': voted_school})
-
+    """ 학교리스트 생성코드
     for item in data['dataSearch']['content']:
         existing_school = School.objects.filter(school_name=item['schoolName']).first()
 
@@ -43,7 +43,7 @@ def school_list(request):
             new_school.save()
         else:
             continue
-
+    """
     myzip = zip(schools, scores)
     return render(request, 'vote/school_list.html', {'myzip': myzip})
 
@@ -109,8 +109,8 @@ def vote_delete(request, school_pk, school_score_pk):
             school_score.delete()
             school.voted_users.remove(request.user)
     return redirect('vote:user_voted')
-    
-    
+
+
 def user_delete(request):
     if request.method == 'POST':
         request.user.delete()
