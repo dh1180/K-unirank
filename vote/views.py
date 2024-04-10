@@ -13,7 +13,7 @@ data = response.json()
 
 
 def school_list(request):
-     # 총 401개의 대학교가 있음
+     # 총 400개의 대학교가 있음
     school_average_score = School.objects.annotate(average_score=Avg('school_score__individual_score'))
     schools = school_average_score.order_by('-average_score')
 
@@ -22,6 +22,8 @@ def school_list(request):
 
     num = 0
     tf = 0
+    
+    # 학교 순위를 지정해주는 반복문 -> 동일 점수 시 같은 순위 부여
     for i in range(399):
         if(li[i] == li[i+1]):
             scores.append(num+1)
@@ -34,6 +36,7 @@ def school_list(request):
         voted_school = School.objects.filter(voted_users=request.user)
         myzip = zip(schools, scores)
         return render(request, 'vote/school_list.html', {'myzip': myzip, 'voted_school': voted_school})
+
     """ 학교리스트 생성코드
     for item in data['dataSearch']['content']:
         existing_school = School.objects.filter(school_name=item['schoolName']).first()
@@ -44,6 +47,7 @@ def school_list(request):
         else:
             continue
     """
+
     myzip = zip(schools, scores)
     return render(request, 'vote/school_list.html', {'myzip': myzip})
 

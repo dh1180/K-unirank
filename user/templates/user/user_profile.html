@@ -1,0 +1,52 @@
+{% extends 'vote/base.html' %} {% block content %}
+<br /><br /><br /><br /><br />
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-5 col-sm-12">
+            <h3 class="text-center mb-5" style="font-weight: bold;">
+            {{ user.username }}님 환영합니다!
+                </h3>
+            <form method="POST" action="{% url 'user:change_username' %}">
+                {% csrf_token %}
+                <div class="form-group" style="font-weight: 1000">
+                    <label for="username" class="form-label">닉네임<span style="color: #FF0000">*</span></label>
+                    <input type="text" name="username" class="form-control" id="username" />
+                    <br />
+                    <br />
+                    
+                    <input type="submit" value="수정" class="btn btn-outline-success form-control" />
+                </div>
+            </form>
+            <br />
+
+            <input type="button" class="btn btn-outline-danger form-control" data-bs-toggle="modal" data-bs-target="#delete" value="계정 삭제" />
+            
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="delete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <p class="modal-title" id="exampleModalLabel">계정 삭제</p>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          계정을 삭제하시겠습니까?
+          <br />
+          (계정 삭제 시 투표내역이 모두 삭제됩니다.)
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+        <form action="{% url 'vote:user_delete' %}" method="POST">
+            {% csrf_token %}
+            <input type="submit" class="btn btn-danger" value="삭제" />
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

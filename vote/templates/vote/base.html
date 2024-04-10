@@ -12,6 +12,7 @@
 
   gtag('config', 'G-5WK14ZDHSP');
 </script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         
         <title>K-unirank - 대학교 랭킹 투표 사이트</title>
         
@@ -38,6 +39,23 @@
                   font-style: normal;
             }
         </style>
+        <style type="text/css">
+            a {
+                cursor: pointer;
+            }
+            a:link {
+                color: black;
+                text-decoration: none;
+            }
+            a:visited {
+                color: black;
+                text-decoration: none;
+            }
+            a:hover {
+                color: black;
+                text-decoration: none;
+            }
+        </style>
     </head>
     <body>
         <nav class="navbar navbar-expand-md navbar-light bg-light">
@@ -59,23 +77,36 @@
                     id="navbarSupportedContent"
                 >
                     <ul class="navbar-nav">
-                        {% if user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="{% url 'vote:school_score' %}">랭킹 투표하기</a>
+                            <a class="nav-link active" aria-current="page" href="{% url 'community:post_list' %}">투기장</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="{% url 'vote:user_voted' %}">내 정보</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="{% url 'account_logout' %}">로그아웃</a>
-                        </li>
-                        {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link active" href="{% provider_login_url 'google' %}">로그인</a>
-                        </li>
+                        <li class="nav-item dropdown">
+                          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            메뉴
+                          </a>
+                          <ul class="dropdown-menu dropdown-menu">
+                            {% if user.is_authenticated %}
 
-                        {% endif %}
-                        
+                            <li class="dropdown-item">
+                                <a href="{% url 'vote:school_score' %}">랭킹 투표하기</a>
+                            </li>
+                            <li class="dropdown-item">
+                                <a href="{% url 'vote:user_voted' %}">내가 투표한 대학</a>
+                            </li>
+                            <li class="dropdown-item">
+                                <a href="{% url 'user:user_profile' %}">내 정보</a>
+                            </li>
+                            <li class="dropdown-item">
+                                <a href="{% url 'account_logout' %}">로그아웃</a>
+                            </li>
+                            {% else %}
+                            <li class="dropdown-item">
+                                <a href="{% provider_login_url 'google' %}">로그인</a>
+                            </li>
+                             {% endif %}
+                          </ul>
+                        </li>
+                   
                         {% if user.is_superuser %}
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="{% url 'vote:upload' %}">대학 로고 업로드</a>

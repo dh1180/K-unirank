@@ -24,9 +24,6 @@
 <div class="container">
     <div class="row">
 
-        <div class="col-12">
-            <input type="button" class="btn btn-outline-danger mb-5" data-bs-toggle="modal" data-bs-target="#delete" value="계정 삭제" />
-        </div>
         <div class="left">
             <br />
             <h3>✔투표한 학교 </h3>
@@ -66,30 +63,6 @@
 
         </div>
     </div>
-</div>
-
-<!-- Modal -->
-<div class="modal fade" id="delete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <p class="modal-title" id="exampleModalLabel">계정 삭제</p>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-          계정을 삭제하시겠습니까?
-          <br />
-          (계정 삭제 시 투표내역이 모두 삭제됩니다.)
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
-        <form action="{% url 'vote:user_delete' %}" method="POST">
-            {% csrf_token %}
-            <input type="submit" class="btn btn-danger" value="삭제" />
-        </form>
-      </div>
-    </div>
-  </div>
 </div>
 
 {% endblock %}

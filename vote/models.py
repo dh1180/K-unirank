@@ -10,13 +10,10 @@ class School(models.Model):
     school_address = models.CharField(max_length=100, null=True)
     voted_users = models.ManyToManyField(User, related_name='voted_school')
 
-    def get_school_score_count(self):
-        return School_score.objects.filter(school=self).count()
-
     def get_average_score(self):
         average_score = School_score.objects.filter(school=self).aggregate(Avg('individual_score'))
         return average_score['individual_score__avg']
-        
+
     def __str__(self):
         return self.school_name
 
