@@ -124,7 +124,7 @@
                 <!-- 대댓글 출력 -->
                 {% for reply in comment.get_reply %}
                     <div class="col-12 mb-3 mt-3">
-                        → {{ reply.author }} | {{ reply.date | date:'Y.m.d'}}
+                        &nbsp;&nbsp;&nbsp;&nbsp;{{ reply.author }} | {{ reply.date | date:'Y.m.d'}}
                         
                         <!-- 유저가 대댓글 작성자라면 대댓글 삭제 버튼 활성화 -->
                         {% if user == reply.author %}

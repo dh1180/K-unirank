@@ -67,3 +67,4 @@ def other_user_posts(request, author):
     paginator = Paginator(posts, 16)
     page_obj = paginator.get_page(page_number)
     return render(request, 'user/other_user_posts.html', {'page_obj': page_obj, 'author': User.objects.get(pk=author), 'today': today})
+
