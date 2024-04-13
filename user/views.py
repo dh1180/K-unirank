@@ -26,12 +26,17 @@ def change_username(request):
     present_user = request.user
     if present_user.is_authenticated:
         if request.method == 'POST':
-            present_user.username = request.POST["username"]
-            present_user.save()
+            is_user_exist = User.objects.filter(username=request.POST["username"])
+            if is_user_exist.exists():
+                # 일치하는 사용자가 존재하는 경우
+                return render(request, 'user/user_profile.html', {'error': '같은 이름의 사용자가 존재합니다.'})
+            else:
+                present_user.username = request.POST["username"]
+                present_user.save()
             return render(request, 'user/user_profile.html')
         return render(request, 'user/user_profile.html')
     else:
-        return render(request, 'user/user_profile', {'error': '사용자가 로그인하지 않았습니다.'})
+        return render(request, 'user/user_profile.html', {'error': '사용자가 로그인하지 않았습니다.'})
 
 
 def user_comment_posts(request):
@@ -101,8 +106,7 @@ def university_certification(request):
         json_data = json.dumps(data)
         response = requests.post(url, data=json_data, headers=headers)
         response_data = response.json()
-        print(response_data)
-        print(url)
+
         if(response_data["success"] and url == "https://univcert.com/api/v1/certify"):
             return render(request, 'user/university_certification.html', {'schools': schools, 'success': True, 'email': email, 'univName': univName})
         elif(response_data["success"] and url == "https://univcert.com/api/v1/certifycode"):
