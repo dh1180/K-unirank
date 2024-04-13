@@ -3,10 +3,15 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-5 col-sm-12">
+            {% if user.university %}
+                <h3 class="text-center" style="color: gray;">({{ user.university }})</h3>
+            {% endif %}
             <h3 class="text-center mb-5" style="font-weight: bold;">
-            {{ user.username }}님 환영합니다!
-                </h3>
-            <form method="POST" action="{% url 'user:change_username' %}">
+                {{ user.username }}
+            </h3>
+            
+            <!-- 유저네임 변경 -->
+            <form method="POST" action="{% url 'user:change_username' %}" class="mb-2">
                 {% csrf_token %}
                 <div class="form-group" style="font-weight: 1000">
                     <label for="username" class="form-label">닉네임<span style="color: #FF0000">*</span></label>
@@ -17,9 +22,19 @@
                     <input type="submit" value="수정" class="btn btn-outline-success form-control" />
                 </div>
             </form>
-            <br />
-
+            
             <input type="button" class="btn btn-outline-danger form-control" data-bs-toggle="modal" data-bs-target="#delete" value="계정 삭제" />
+            <br /><br />
+            
+            <!-- 대학교 인증 -->
+            {% if user.university is None %}
+            <a href="{% url 'user:university_certification' %}">대학교 인증하기</a>
+            <br /><br />
+            {% endif %}
+            <a href="{% url 'user:user_posts' %}">내가 작성한 글</a>
+            <br /><br />
+            <a href="{% url 'user:user_like_posts' %}">내가 찜한 글</a>
+            <br /><br />
             
         </div>
     </div>

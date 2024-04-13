@@ -29,6 +29,9 @@
                 {% endif %}
                   </p>
               </h5>
+              {% if post.author.university %}
+                  <span style="font-size: 13px; font-color: gray;">({{ post.author.university }})</span>
+              {% endif %}
               <span style="font-size: 13px">{{ post.author }} </span>
                 <div class="float-end" style="font-size: 15px;">
                     ♥{{ post.like }} 👁{{ post.hit }} 🗨️{{ post.get_comment_count }}
@@ -38,12 +41,6 @@
         </div>
     </div>
     {% endfor %}
-    
-    <div class="row mt-5">
-        <div class="col text-end">
-            <a href="{% url 'community:post_create' %}"><button class="btn btn-primary">글쓰기</button></a>
-        </div>
-    </div>
     
     <!-- 페이지네이션 -->
     <ul class="pagination justify-content-center">
@@ -95,6 +92,24 @@
     <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a></li>
       
   </ul>
+
+    <!-- 검색 기능 -->
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-sm-12">
+            <form method="GET" action="{% url 'community:post_list' %}" class="d-flex">
+                <input
+                    class="form-control me-2"
+                    type="search"
+                    placeholder="Search"
+                    aria-label="Search"
+                    name="q"
+                    id="q"
+                />
+                <input class="btn btn-outline-primary" type="submit" value="Search" id="submit" />
+            </form>
+        </div>
+    </div>
+
 </div>
 
 {% endblock %}

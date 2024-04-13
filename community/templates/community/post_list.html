@@ -1,5 +1,13 @@
 {% extends "vote/base.html" %} {% block content %} {% load humanize %}
 
+<style>    
+    @media (max-width: 576px) {
+        .card-title {
+            font-size: 14px; /* 작은 폰트 크기로 변경 */
+        }
+    }
+</style>
+
 <br /><br /><br />
 
 <div class="container">
@@ -10,10 +18,10 @@
         <div class="card">
           <div class="card-body">
               <div class="row">
-                  <div class="col-10">
-                      <h5 class="card-title">{{ post.title }}</h5>
+                  <div class="col-9">
+                      <span class="card-title">{{ post.title }}</span>
                   </div>
-                  <div class="col-2">
+                  <div class="col-3">
                       <p class="text-end" style="font-size: 13px;">           
                         {% if today == post.date.date %}
                             {{ post.date|date:"H:i" }}
@@ -24,7 +32,10 @@
                   </div>
                   <br />
                   <div class="col-6">
-                      <span style="font-size: 13px">{{ post.author }}</span>
+                      {% if post.author.university %}
+                          <span style="font-size: 13px; color: gray;">({{ post.author.university }})</span>
+                      {% endif %}
+                          <span style="font-size: 13px">{{ post.author }}</span>
                   </div>
                   <div class="col-6 text-end" style="font-size: 15px;">
                       ♥{{ post.like }} 👁{{ post.hit }} 🗨️{{ post.get_comment_count }}
@@ -35,13 +46,14 @@
         </div>
     </div>
     {% endfor %}
-    
-    
+    <br />
+    {% if user.is_authenticated %}
     <div class="row mt-5">
         <div class="col text-end">
             <a href="{% url 'community:post_create' %}"><button class="btn btn-primary">글쓰기</button></a>
         </div>
     </div>
+    {% endif %}
     
     <!-- 페이지네이션 -->
     <ul class="pagination justify-content-center">

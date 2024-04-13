@@ -1,14 +1,10 @@
 {% extends "vote/base.html" %} {% block content %} {% load humanize %}
 
-<style>
-    tr:not(.disabled):hover {
-        background-color: #e2e2e2;
-    }
-
-	.updown {
-    	border: 1px solid #e2e2e2;
-        width: 1px;
-        height: 150px;
+<style>    
+    @media (max-width: 576px) {
+        .school_name {
+            font-size: 13px; /* 작은 폰트 크기로 변경 */
+        }
     }
 </style>
 <br /><br /><br />
@@ -20,7 +16,7 @@
         
         <table class="table align-middle">
             <tr class="disabled">
-                <th scope="col">순위</th>
+                <th scope="col" class="col-md-1 col-2">순위</th>
                 <th scope="col" colspan="2">로고 / 대학교 이름</th>
                 <th scope="col">점수</th>
             </tr>
@@ -39,7 +35,7 @@
                 </td>
                 {% endif %}
                  
-                <td width="70%">{{ school.school_name }}
+                <td width="70%" class="school_name">{{ school.school_name }}
                 {% if user.is_authenticated %}
                 {% if school in voted_school %}
                 ✔

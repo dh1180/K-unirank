@@ -28,7 +28,10 @@
 
         <!-- 게시글 출력 -->
         <div class="row">
-            <div class="col-md-3 col-sm-12 mb-3">
+            <div class="col-md-4 col-sm-12 mb-3">
+                {% if post.author.university %}
+                    <span style="color: gray;">({{ post.author.university }})</span>
+                {% endif %}
                 <span>
                     <a href="{% url 'user:other_user_posts' author=post.author.pk %}" 
                        style="cursor: pointer; color: black; text-decoration: none;">{{ post.author }}
@@ -90,7 +93,13 @@
             <!-- 댓글 출력 -->
             {% for comment in comments %} 
             <div class="col-12 mb-3">
-                {{ comment.author }} | {{ comment.date | date:'Y.m.d'}}
+                {% if comment.author.university %}
+                    <span style="color: gray;">({{ comment.author.university }})</span>
+                {% endif %}
+                <a href="{% url 'user:other_user_posts' author=comment.author.pk %}" 
+                    style="cursor: pointer; color: black; text-decoration: none;">{{ comment.author }}
+                </a>
+                 | {{ comment.date | date:'Y.m.d'}}
                 
                 <!-- 유저가 댓글 작성자라면 댓글 삭제 버튼 활성화 -->
                 {% if user == comment.author %}
@@ -123,8 +132,16 @@
 
                 <!-- 대댓글 출력 -->
                 {% for reply in comment.get_reply %}
-                    <div class="col-12 mb-3 mt-3">
-                        &nbsp;&nbsp;&nbsp;&nbsp;{{ reply.author }} | {{ reply.date | date:'Y.m.d'}}
+                <div class="row justify-content-end">
+                    <div class="col-11 mb-3 mt-3">
+                        {% if reply.author.university %}
+                            <span style="color: gray;">({{ reply.author.university }})</span>
+                        {% endif %}
+                        <a href="{% url 'user:other_user_posts' author=reply.author.pk %}" 
+                            style="cursor: pointer; color: black; text-decoration: none;">{{ reply.author }}
+                        </a>
+                         | {{ reply.date | date:'Y.m.d'}}
+                        
                         
                         <!-- 유저가 대댓글 작성자라면 대댓글 삭제 버튼 활성화 -->
                         {% if user == reply.author %}
@@ -139,8 +156,9 @@
                         {% endif %}
                         
                         <br />
-                        <span>&nbsp;&nbsp;&nbsp;&nbsp;{{ reply.content }}</span>
+                        <span>{{ reply.content }}</span>
                     </div>
+                </div>
                 {% endfor %}
             </div>
         
