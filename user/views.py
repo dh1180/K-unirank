@@ -76,7 +76,7 @@ def other_user_posts(request, author):
     return render(request, 'user/other_user_posts.html', {'page_obj': page_obj, 'author': User.objects.get(pk=author), 'today': today})
 
 
-api_key = "06b36831-6622-49bc-a6f4-c1bc351edb1e"
+api_key = "6dd5bda6-7d17-477a-82a5-166e889583c1"
 headers = {"Content-Type": "application/json"}
 
 
