@@ -30,7 +30,7 @@
                   </p>
               </h5>
               {% if post.author.university %}
-                  <span style="font-size: 13px; font-color: gray;">({{ post.author.university }})</span>
+                  <span style="font-size: 13px; color: gray;">({{ post.author.university }})</span>
               {% endif %}
               <span style="font-size: 13px">{{ post.author }} </span>
                 <div class="float-end" style="font-size: 15px;">
@@ -41,6 +41,7 @@
         </div>
     </div>
     {% endfor %}
+    <br />
     
     <!-- 페이지네이션 -->
     <ul class="pagination justify-content-center">

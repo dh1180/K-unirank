@@ -5,6 +5,13 @@
         .school_name {
             font-size: 13px; /* 작은 폰트 크기로 변경 */
         }
+        .score {
+            font-size: 13px;
+        }
+    }
+    
+    .container {
+        font-weight: bold;
     }
 </style>
 <br /><br /><br />
@@ -46,7 +53,7 @@
                 
                 </td>
                
-                <td width="10%"> {{ school.get_average_score|floatformat:3 }}</td>
+                <td width="10%" class="score"> {{ school.get_average_score|floatformat:3 }}</td>
             </tr>
             
             {% endfor %}

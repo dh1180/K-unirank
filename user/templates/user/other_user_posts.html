@@ -23,6 +23,9 @@
                 {% endif %}
                   </p>
               </h5>
+              {% if post.author.university %}
+                  <span style="font-size: 13px; color: gray;">({{ post.author.university }})</span>
+              {% endif %}
               <span style="font-size: 13px">{{ post.author }} </span>
                 <div class="float-end" style="font-size: 15px;">
                     ♥{{ post.like }} 👁{{ post.hit }} 🗨️{{ post.get_comment_count }}
@@ -32,12 +35,7 @@
         </div>
     </div>
     {% endfor %}
-    
-    <div class="row mt-5">
-        <div class="col text-end">
-            <a href="{% url 'community:post_create' %}"><button class="btn btn-primary">글쓰기</button></a>
-        </div>
-    </div>
+    <br />
     
     <!-- 페이지네이션 -->
     <ul class="pagination justify-content-center">

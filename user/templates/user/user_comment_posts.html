@@ -21,6 +21,9 @@
                 {% endif %}
                   </p>
               </h5>
+              {% if post.author.university %}
+                  <span style="font-size: 13px; color: gray;">({{ post.author.university }})</span>
+              {% endif %}
               <span style="font-size: 13px">{{ post.author }} </span>
                 <div class="float-end" style="font-size: 15px;">
                     ♥{{ post.like }} 👁{{ post.hit }} 🗨️{{ post.get_comment_count }}

@@ -47,8 +47,8 @@
         </div>
 
         <hr />
-        <div class="disabled">
-        {{ post.content }}
+        <div class="non">
+            {{ post.content }}
         </div>
     
         <br />
@@ -59,7 +59,7 @@
         <br /><br /><br />
 
             <div>
-                <button id="likes" class="btn btn-outline-danger" style="font-size: 80%;">
+                <button id="likes" class="btn btn-outline-danger" style="font-size: 80%; font-weight: bold;">
                     ♥ <span id="like-count">{{ post.like }}</span>
                 </button>
             </div>
@@ -74,7 +74,7 @@
                 class="mb-0"
             >
                 {% csrf_token %}
-                <label for="comment" class="form-label">댓글 {{ post.get_comment_count }}</label>
+                <label for="comment" class="form-label" style="font-weight: bold;">댓글 {{ post.get_comment_count }}</label>
                 <textarea
                     class="form-control h-75"
                     id="comment"
@@ -117,13 +117,13 @@
                 <input type="button" class="showButton" value="대댓글" style="border:none; background-color:transparent; font-size:90%;" />
                 
                 <br />
-                {{ comment.content }}
+                <span class="non-bold">{{ comment.content }}</span>
                 <br />
                 
                 <form
                     action="{% url 'community:reply_create' post.pk comment.pk %}"
                     method="POST"
-                    class="hiddenElement"
+                    class="hiddenElement mt-3"
                 >
                     {% csrf_token %}
                     <textarea class="form-control" name="content" placeholder="대댓글을 입력해주세요."></textarea>
