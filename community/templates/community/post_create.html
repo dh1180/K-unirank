@@ -1,4 +1,7 @@
 {% extends 'vote/base.html' %} {% block content %}
+
+
+
 <br /><br /><br />
 <div class="container">
     <form method="POST" action="" enctype="multipart/form-data">
@@ -26,15 +29,48 @@
         
         <div class="row justify-content-end">
             <div class="col-md-2 col-sm-4 text-end">
-                <label for="file" class="btn btn-secondary">사진 첨부</label>
-                <input type="file" name="image" class="custom-file-input" id="file" style="display: none" />
+                <input type="file" name="images" class="custom-file-input" id="image" multiple />
             </div>
+            
 
             <div class="col-md-1 col-sm-3 text-end">
                 <input type="submit" value="글쓰기" class="btn btn-outline-primary" />
             </div>
+            
+            <div id="image-preview">
+            </div>
         </div>
     </form>
 </div>
+
+<!-- 다중 이미지 업로드 개발 중
+<script>
+    $(document).ready(function() {
+        $('#image').change(function() {
+            for (var file of this.files) {
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#image-preview').append(
+                            '<div class="image-preview-item" style="display: inline">' +
+                                '<img class="rounded" src="' + e.target.result + '" alt="Image Preview" style="width: 100px; height: 100px; object-fit: cover;" />' +
+                                '<button type="button" class="delete-image">X</button>' +
+                            '</div>'
+                        );
+                    }
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+
+        $('#image-preview').on('click', '.delete-image', function() {
+            console.log($('#image').val())
+            $('#image').val('');
+            $(this).parent().remove(); // 클릭된 요소의 부모 div를 삭제
+        });
+    });
+</script>
+
+-->
 
 {% endblock content %}

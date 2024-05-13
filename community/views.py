@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Post, Comment, Reply
+from .models import Post, Comment, Reply, Post_Image
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import JsonResponse
@@ -24,9 +24,12 @@ def post_create(request):
         post.title = request.POST["title"]
         post.content = request.POST["content"]
         post.author = request.user
-        if "image" in request.FILES:
-            post.image = request.FILES["image"]
         post.save()
+        if "images" in request.FILES:
+            images = request.FILES.getlist("images")
+            for image in images:
+                post_image = Post_Image(post=post, image=image)
+                post_image.save()
         return redirect('community:post_list')
     return render(request, 'community/post_create.html')
 
