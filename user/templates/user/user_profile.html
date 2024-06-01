@@ -16,9 +16,6 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-5 col-sm-12">
-            {% if user.university %}
-                <h3 class="text-center" style="color: gray;">({{ user.university }})</h3>
-            {% endif %}
             <h3 class="text-center mb-5" style="font-weight: bold;">
                 {{ user.username }}
             </h3>
@@ -37,16 +34,6 @@
             </form>
             
             <input type="button" class="btn btn-outline-danger form-control" data-bs-toggle="modal" data-bs-target="#delete" value="계정 삭제" />
-            <br /><br />
-            
-            <!-- 대학교 인증 -->
-            {% if user.university is None %}
-            <a href="{% url 'user:university_certification' %}">대학교 인증하기</a>
-            <br /><br />
-            {% endif %}
-            <a href="{% url 'user:user_posts' %}">내가 작성한 글</a>
-            <br /><br />
-            <a href="{% url 'user:user_like_posts' %}">내가 찜한 글</a>
             <br /><br />
             
         </div>

@@ -2,12 +2,13 @@
 
 <style>    
     @media (max-width: 576px) {
-        .school_name {
-            font-size: 13px; /* 작은 폰트 크기로 변경 */
-        }
-        .score {
+        html {
             font-size: 13px;
         }
+    }
+    
+    .non-bold {
+        font-weight: normal;
     }
     
     .container {
@@ -18,9 +19,11 @@
 
 <div class="container">
     <div class="row">
-        <span>* 이원화 캠퍼스는 투표 대상에서 제외합니다.</span>
-        <p>* 대학교의 점수는 사람들의 투표로 결정되며 만점은 401점입니다.</p>
-        
+        <div class="non-bold">
+            <span>* 이원화 캠퍼스는 투표 대상에서 제외합니다.</span>
+            <p>* 대학교의 점수는 사람들의 투표로 결정되며 만점은 401점입니다.</p>
+        </div>
+            
         <table class="table align-middle">
             <tr class="disabled">
                 <th scope="col" class="col-md-1 col-2">순위</th>
@@ -34,7 +37,7 @@
                 
                 {% if school.school_image %}
                 <td width="10%" class="text-center" height="100">
-                    <img src="{{ school.school_image.url }}" style="height: 6vw"/>
+                    <img src="{{ school.school_image.url }}" style="width: 6vw"/>
                 </td>
                 {% else %}
                 <td width="10%">

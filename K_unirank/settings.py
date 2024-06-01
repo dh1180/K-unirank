@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'mathfilters',
     'vote',
-    'community',
     'user',
 ]
 

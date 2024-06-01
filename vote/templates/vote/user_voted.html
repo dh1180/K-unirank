@@ -2,21 +2,28 @@
 {% load mathfilters %}
 
 <style>
-    div.left {
-        width: 50%;
-        float: left;
-        box-sizing: border-box;
-        border: 1px solid;
-        border-radius: 20px;
-        border-color:gray;
+    @media (max-width: 576px) {
+        html {
+            font-size: 13px;
+        }
     }
-    div.right {
-        width: 50%;
-        float: right;
-        box-sizing: border-box;
-        border: 1px solid;
-        border-radius: 20px;
-        border-color:gray;
+    
+    @media (min-width: 577px) {
+        
+        div.left {
+            width: 50%;
+            float: left;
+            box-sizing: border-box;
+
+            border-color:gray;
+        }
+        div.right {
+            width: 50%;
+            float: right;
+            box-sizing: border-box;
+
+            border-color:gray;
+        }
     }
 </style>
 
@@ -25,42 +32,37 @@
     <div class="row">
 
         <div class="left">
-            <br />
-            <h3>✔투표한 학교 </h3>
-            <hr />
-            <br />
+            <table class="table">
+                <tr>
+                    <th scope="col">✔투표한 학교</th>
+                </tr>
             {% for school in voted_school %}
-            <div class="col">
-                
-                <form
-                    action="{% url 'vote:vote_delete' school.school.pk school.pk %}"
-                    method="POST"
-                >
-                    {% csrf_token %}
-                    <h5>{{school.school.school_name}} {{ school.individual_score|add:-402|abs }}등
-                    <input type="submit" class="btn btn-outline-danger" value="투표 취소하기" />
-                    </h5>
-                    <hr />
-                    
-                </form>
-                                
-                
-            </div>
+                <tr>
+                    <form
+                        action="{% url 'vote:vote_delete' school.school.pk school.pk %}"
+                        method="POST"
+                    >
+                        {% csrf_token %}
+                        <td class="align-middle">{{school.school.school_name}} {{ school.individual_score|add:-402|abs }}등</td>
+                        <td><input type="submit" class="btn btn-outline-secondary" value="투표 취소하기" /></td>
+                    </form>
+                </tr>
             {% endfor %}
+            </table>
         </div>
+        
         <div class="right">
-            <br />
-            <h3>❌투표 하지 않은 학교</h3>
-            <hr />
-            <br />
-
-            {% for not_school in not_voted_school %}
-            <div class="col">
-                <h5>{{not_school.school_name}}</h5>
-            </div>
-            <hr />
-            {% endfor %}
-
+            <table class="table">
+                <tr>
+                    <th scope="col">❌투표하지 않은 학교</th>
+                </tr>
+                {% for not_voted_school in not_voted_schools %}
+                <tr>
+                    <td>{{not_voted_school.school_name}}</td>
+                </tr>
+                    {% endfor %}
+                
+            </table>
         </div>
     </div>
 </div>

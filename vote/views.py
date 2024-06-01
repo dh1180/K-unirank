@@ -101,8 +101,8 @@ def upload(request):
 def user_voted(request):
     school_average_score = School_score.objects.annotate(average_score=Avg('individual_score'))
     voted_school = school_average_score.filter(voted_user=request.user).order_by('-average_score')
-    not_voted_school = School.objects.exclude(voted_users=request.user)
-    return render(request, 'vote/user_voted.html', {'voted_school': voted_school, 'not_voted_school': not_voted_school})
+    not_voted_schools = School.objects.exclude(voted_users=request.user)
+    return render(request, 'vote/user_voted.html', {'voted_school': voted_school, 'not_voted_schools': not_voted_schools})
 
 
 def vote_delete(request, school_pk, school_score_pk):

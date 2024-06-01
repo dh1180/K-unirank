@@ -1,6 +1,12 @@
 {% extends "vote/base.html" %} {% block content %}
 
-
+<style>    
+    @media (max-width: 576px) {
+        html {
+            font-size: 13px;
+        }
+    }
+</style>
 
 <br /><br /><br />
 <script>
@@ -31,8 +37,8 @@
             <br />
             <table class="table">
                 <tr>
-                    <th scope="col">순위</th>
-                    <th scope="col" colspan="2">대학교 이름</th>
+                <th scope="col" class="col-md-1 col-2">순위</th>
+                <th scope="col" colspan="2">대학교 이름</th>
                 </tr>
 
                 {% csrf_token %} {% for school in schools %}
@@ -43,7 +49,7 @@
                             class="form-control"
                             placeholder="대학교 검색"
                             list="browsers"
-                            name="school_name[]"
+                            name="school_name"
                         />
                         <datalist id="browsers">
                             {% for school in schools %}
