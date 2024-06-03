@@ -8,7 +8,7 @@ urlpatterns = [
     path('', views.school_list, name='school_list'),
     path('school_score', views.school_score, name='school_score'),
     path('upload', views.upload, name='upload'),
-    path('user', views.user_voted, name='user_voted'),
+    path('user_voted', views.user_voted, name='user_voted'),
     path('vote_delete/<int:school_pk>/<int:school_score_pk>', views.vote_delete, name='vote_delete'),
     path('user_delete', views.user_delete, name='user_delete')
 ]
