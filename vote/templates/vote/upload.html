@@ -1,5 +1,12 @@
 {% extends "vote/base.html" %} {% block content %}
 
+    {% if not is_superuser %}
+        <script>
+            alert('접근 권한이 없습니다.');
+            window.location.href = "{% url 'vote:school_list' %}";
+        </script>
+    {% endif %}
+    
 <div class="container">
     <div class="row">
             <form method="POST" enctype="multipart/form-data">

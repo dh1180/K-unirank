@@ -67,7 +67,7 @@ def school_score(request):
                 school = School.objects.filter(school_name=school_name).first()
                 if school is not None:
                     if school.voted_users.filter(pk=request.user.pk).exists():
-                        messages.info(request, "이미 순위를 투표한 대학교를 선택하셨습니다.")
+                        messages.info(request, "이미 투표한 대학교를 선택하셨습니다.")
                         return redirect('vote:school_score')
                     else:
                         school.voted_users.add(request.user)
@@ -95,10 +95,17 @@ def upload(request):
             selected_school.save()
 
         return redirect('vote:upload')
-    return render(request, 'vote/upload.html', {'schools': schools})
+    
+    context = {
+        'schools': schools,
+        'is_superuser': request.user.is_superuser
+    }
+    return render(request, 'vote/upload.html', context)
 
 
 def user_voted(request):
+    if not request.user.is_authenticated:
+        return render(request, 'vote/user_voted.html')
     school_average_score = School_score.objects.annotate(average_score=Avg('individual_score'))
     voted_school = school_average_score.filter(voted_user=request.user).order_by('-average_score')
     not_voted_schools = School.objects.exclude(voted_users=request.user)

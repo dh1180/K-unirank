@@ -9,13 +9,20 @@
 </style>
 
 <br /><br /><br />
+
 <script>
 {% if messages %}
  {% for message in messages %}
 		alert("{{ message.message }}")
  {% endfor %}
 {% endif %}
+
+{% if not user.is_authenticated %}
+    alert('로그인 후 이용해주세요.');
+    window.location.href = "{% url 'vote:school_list' %}";
+{% endif %}
 </script>
+
 <div class="container">
     <div class="row">
         <form method="POST">
