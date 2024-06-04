@@ -14,6 +14,10 @@
     .container {
         font-weight: bold;
     }
+    
+    .schools:hover {
+        background: #E2E2E2;
+    }
 </style>
 <br /><br /><br />
 
@@ -31,7 +35,11 @@
                 <th scope="col">점수</th>
             </tr>
             {% for school, rank in myzip %}
-            <tr>       
+            <tr class="schools" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                data-school-name="{{ school.school_name }}" 
+                data-school-image="{% if school.school_image %}{{ school.school_image.url }}{% endif %}"
+                data-school-jungsi="{% if school.susi_school_pdf %}{{ school.jungsi_school_pdf.url }}{% endif %}"
+                data-school-susi="{% if school.susi_school_pdf %}{{ school.susi_school_pdf.url }}{% endif %}">  
                 <td width="10%">{{ rank }}</td>
 
                 
@@ -63,5 +71,64 @@
         </table>
     </div>
 </div>
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary">
+  Launch demo modal
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <!--모달 제목-->
+        <h5 class="modal-title" id="modal-title"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!--모달 이미지, 내용-->
+        <div class="text-center">
+            <img id="modalSchoolImage" src="" alt="School Image" style="height: 15vh" />
+            <br/>
+            <p style="display: inline; font-weight: bold;" id="modalSchoolName"></p>
+        </div>
+      </div>
+      <div class="modal-footer">
+            <button id="susi" type="button" class="btn btn-secondary" data-bs-dismiss="modal">수시 결과</button>
+            <button id="jungsi" type="button" class="btn btn-secondary" data-bs-dismiss="modal">정시 결과</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#exampleModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var schoolName = button.data('school-name');
+        var schoolImage = button.data('school-image');
+        var schoolScore = button.data('school-score');
+        var jungsiSchoolPdf = button.data('school-jungsi');
+        var susiSchoolPdf = button.data('school-susi');
+
+        var susi = $('#susi');
+        var jungsi = $('#jungsi');
+
+        $('#modal-title').text(schoolName);
+        $('#modalSchoolImage').attr('src', schoolImage ? schoolImage : 'placeholder-image-url');
+        $('#modalSchoolName').text(schoolName);
+
+        susi.off('click').on('click', function() {
+            window.open(susiSchoolPdf, '_blank');
+        });
+        
+        jungsi.off('click').on('click', function() {
+            window.open(jungsiSchoolPdf, '_blank');
+        });
+    });
+});
+</script>
 
 {% endblock %}

@@ -95,12 +95,50 @@ def upload(request):
             selected_school.save()
 
         return redirect('vote:upload')
-    
+
     context = {
         'schools': schools,
         'is_superuser': request.user.is_superuser
     }
     return render(request, 'vote/upload.html', context)
+
+
+def susi_pdf_upload(request):
+    school_average_score = School.objects.annotate(average_score=Avg('school_score__individual_score'))
+    schools = school_average_score.order_by('average_score')
+    if request.method == 'POST':
+        school = request.POST['school']
+        selected_school = School.objects.filter(school_name=school).first()
+
+        selected_school.susi_school_pdf = request.FILES["susi"]
+        selected_school.save()
+
+        return redirect('vote:susi_pdf_upload')
+
+    context = {
+        'schools': schools,
+        'is_superuser': request.user.is_superuser
+    }
+    return render(request, 'vote/susi_pdf_upload.html', context)  
+
+
+def jungsi_pdf_upload(request):
+    school_average_score = School.objects.annotate(average_score=Avg('school_score__individual_score'))
+    schools = school_average_score.order_by('average_score')
+    if request.method == 'POST':
+        school = request.POST['school']
+        selected_school = School.objects.filter(school_name=school).first()
+
+        selected_school.jungsi_school_pdf = request.FILES["jungsi"]
+        selected_school.save()
+
+        return redirect('vote:jungsi_pdf_upload')
+
+    context = {
+        'schools': schools,
+        'is_superuser': request.user.is_superuser
+    }
+    return render(request, 'vote/jungsi_pdf_upload.html', context)  
 
 
 def user_voted(request):
