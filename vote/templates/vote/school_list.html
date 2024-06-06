@@ -3,7 +3,7 @@
 <style>    
     @media (max-width: 576px) {
         html {
-            font-size: 13px;
+            font-size: 14px;
         }
     }
     
@@ -38,7 +38,7 @@
             <tr class="schools" data-bs-toggle="modal" data-bs-target="#exampleModal"
                 data-school-name="{{ school.school_name }}" 
                 data-school-image="{% if school.school_image %}{{ school.school_image.url }}{% endif %}"
-                data-school-jungsi="{% if school.susi_school_pdf %}{{ school.jungsi_school_pdf.url }}{% endif %}"
+                data-school-jungsi="{% if school.jungsi_school_pdf %}{{ school.jungsi_school_pdf.url }}{% endif %}"
                 data-school-susi="{% if school.susi_school_pdf %}{{ school.susi_school_pdf.url }}{% endif %}">  
                 <td width="10%">{{ rank }}</td>
 
@@ -94,9 +94,9 @@
             <p style="display: inline; font-weight: bold;" id="modalSchoolName"></p>
         </div>
       </div>
-      <div class="modal-footer">
-            <button id="susi" type="button" class="btn btn-secondary" data-bs-dismiss="modal">수시 결과</button>
-            <button id="jungsi" type="button" class="btn btn-secondary" data-bs-dismiss="modal">정시 결과</button>
+      <div class="modal-footer" id="modalFooter">
+            <button id="susi" type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="display: none;">수시 결과</button>
+            <button id="jungsi" type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="display: none;">정시 결과</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
@@ -115,18 +115,40 @@ $(document).ready(function() {
 
         var susi = $('#susi');
         var jungsi = $('#jungsi');
+        
+        var modalFooter = $('#modalFooter');
 
         $('#modal-title').text(schoolName);
         $('#modalSchoolImage').attr('src', schoolImage ? schoolImage : 'placeholder-image-url');
         $('#modalSchoolName').text(schoolName);
 
-        susi.off('click').on('click', function() {
-            window.open(susiSchoolPdf, '_blank');
-        });
+        // 이전에 추가된 버튼들을 제거합니다.
+        modalFooter.find('.pdf-button').remove();
+
+        // 수시 PDF 버튼 생성
+        if (susiSchoolPdf && jungsiSchoolPdf) {
+            var viewJungsiPdfButton = $('<button type="button" class="btn btn-primary pdf-button">정시 결과</button>');
+            viewJungsiPdfButton.on('click', function() {
+                window.open(jungsiSchoolPdf, '_blank');
+            });
+            modalFooter.prepend(viewJungsiPdfButton);
+            
+            var viewSusiPdfButton = $('<button type="button" class="btn btn-primary pdf-button">수시 결과</button>');
+            viewSusiPdfButton.on('click', function() {
+                window.open(susiSchoolPdf, '_blank');
+            });
+            modalFooter.prepend(viewSusiPdfButton);
+        }
         
-        jungsi.off('click').on('click', function() {
-            window.open(jungsiSchoolPdf, '_blank');
-        });
+        else if (susiSchoolPdf) {
+            var viewSusiPdfButton = $('<button type="button" class="btn btn-primary pdf-button">수시/정시 결과</button>');
+            viewSusiPdfButton.on('click', function() {
+                window.open(susiSchoolPdf, '_blank');
+            });
+            modalFooter.prepend(viewSusiPdfButton);
+        }
+
+
     });
 });
 </script>
