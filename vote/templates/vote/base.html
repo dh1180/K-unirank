@@ -61,6 +61,10 @@
         </style>
     </head>
     <body>
+        <ins class="kakao_ad_area" style="display:none;"
+            data-ad-unit = "DAN-4r2w24dDA1owYfUn"
+            data-ad-width = "320"
+            data-ad-height = "50"></ins>
         <nav class="navbar navbar-expand-md navbar-light bg-light">
             <div class="container">
                 <a class="navbar-brand" href="/">K-unirank</a>
@@ -80,32 +84,26 @@
                     id="navbarSupportedContent"
                 >
                     <ul class="navbar-nav">
-                        <li class="nav-item dropdown">
-                          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            메뉴
-                          </a>
-                          <ul class="dropdown-menu dropdown-menu">
-                            {% if user.is_authenticated %}
+                        {% if user.is_authenticated %}
 
-                            <li class="dropdown-item">
-                                <a href="{% url 'vote:school_score' %}">랭킹 투표하기</a>
-                            </li>
-                            <li class="dropdown-item">
-                                <a href="{% url 'vote:user_voted' %}">내가 투표한 대학</a>
-                            </li>
-                            <li class="dropdown-item">
-                                <a href="{% url 'user:user_profile' %}">내 정보</a>
-                            </li>
-                            <li class="dropdown-item">
-                                <a href="{% url 'account_logout' %}">로그아웃</a>
-                            </li>
-                            {% else %}
-                            <li class="dropdown-item">
-                                <a href="{% provider_login_url 'google' %}">로그인</a>
-                            </li>
-                             {% endif %}
-                          </ul>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{% url 'vote:school_score' %}">
+                            <img src="/media/icon/vote.png" width="20" />    
+                                랭킹 투표</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{% url 'vote:user_voted' %}">
+                            <img src="/media/icon/record.png" width="19" />    
+                                투표한 대학</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{% url 'account_logout' %}">로그아웃</a>
+                        </li>
+                        {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{% provider_login_url 'google' %}">로그인</a>
+                        </li>
+                        {% endif %}
                    
                         {% if user.is_superuser %}
                         <li class="nav-item">
@@ -123,12 +121,13 @@
                 </div>
             </div>
         </nav>
-
+        <br/>
         {% block content %}{% endblock %}
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
             crossorigin="anonymous"
         ></script>
+        <script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
     </body>
 </html>

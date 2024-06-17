@@ -1,4 +1,5 @@
 {% extends "vote/base.html" %} {% block content %} {% load humanize %}
+{% load static %}
 
 <style>    
     @media (max-width: 576px) {
@@ -19,19 +20,16 @@
         background: #E2E2E2;
     }
 </style>
-<br /><br /><br />
+<br />
 
 <div class="container">
     <div class="row">
-        <div class="non-bold">
-            <span>* 이원화 캠퍼스는 투표 대상에서 제외합니다.</span>
-            <p>* 대학교의 점수는 사람들의 투표로 결정되며 만점은 401점입니다.</p>
-        </div>
+
             
         <table class="table align-middle">
             <tr class="disabled">
-                <th scope="col" class="col-md-1 col-2">순위</th>
-                <th scope="col" colspan="2">로고 / 대학교 이름</th>
+                <th scope="col" class="col-md-1 col-2 text-center">순위</th>
+                <th scope="col" colspan="2">대학명</th>
                 <th scope="col">점수</th>
             </tr>
             {% for school, rank in myzip %}
@@ -40,11 +38,11 @@
                 data-school-image="{% if school.school_image %}{{ school.school_image.url }}{% endif %}"
                 data-school-jungsi="{% if school.jungsi_school_pdf %}{{ school.jungsi_school_pdf.url }}{% endif %}"
                 data-school-susi="{% if school.susi_school_pdf %}{{ school.susi_school_pdf.url }}{% endif %}">  
-                <td width="10%">{{ rank }}</td>
+                <td width="10%" class="text-center">{{ rank }}</td>
 
                 
                 {% if school.school_image %}
-                <td width="10%" class="text-center" height="100">
+                <td width="10%" height="100">
                     <img src="{{ school.school_image.url }}" style="width: 6vw"/>
                 </td>
                 {% else %}
@@ -53,12 +51,12 @@
                 </td>
                 {% endif %}
                  
-                <td width="70%" class="school_name">{{ school.school_name }}
+                <td width="70%" class="school_name text-start">{{ school.school_name }}
                 {% if user.is_authenticated %}
                 {% if school in voted_school %}
-                ✔
+                <img src="/media/icon/check.png" width="13" />
                 {% else %}
-                ❌
+                <img src="/media/icon/x.png" width="13" />
                 {% endif %}
                 {% endif %}
                 
@@ -71,12 +69,10 @@
         </table>
     </div>
 </div>
-
-<!-- Button trigger modal -->
-<button type="button" class="btn btn-primary">
-  Launch demo modal
-</button>
-
+<ins class="kakao_ad_area" style="display:none;"
+data-ad-unit = "DAN-H3nZaPori57CstUh"
+data-ad-width = "160"
+data-ad-height = "600"></ins>
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
