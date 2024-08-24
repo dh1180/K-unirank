@@ -52,8 +52,8 @@ https://www.k-unirank.com/
 
 # 사이트 기능
 ### 1. 메인 페이지
-<img src="https://github.com/user-attachments/assets/90d5d265-04df-49ce-9906-9a030e2f5565" width="500">
-<img src="https://github.com/user-attachments/assets/222f123b-fd13-4ccd-91fa-44a905ffd8b5" width="500">
+<img src="https://github.com/user-attachments/assets/90d5d265-04df-49ce-9906-9a030e2f5565" width="700">
+<img src="https://github.com/user-attachments/assets/222f123b-fd13-4ccd-91fa-44a905ffd8b5" width="700">
 
 * 대학교 클릭 시 모달창이 생성되면서 해당 학교의 수시, 정시 등급을 볼 수 있습니다.
 * 로그인 시 투표한 학교 옆에 체크 표시가 나타나고 투표하지 않은 학교 옆에는 X 표시가 나타납니다.
