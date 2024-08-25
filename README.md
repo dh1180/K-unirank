@@ -49,7 +49,7 @@ https://www.k-unirank.com/
 <br />
 <br />
 
-# 사이트 기능
+# 🔗 사이트 기능
 ### 1. 메인 페이지
 <img src="https://github.com/user-attachments/assets/90d5d265-04df-49ce-9906-9a030e2f5565" width="700">
 <img src="https://github.com/user-attachments/assets/222f123b-fd13-4ccd-91fa-44a905ffd8b5" width="700">
@@ -60,6 +60,10 @@ https://www.k-unirank.com/
 * 또한 상단 내비게이션 바에 대학교를 투표할 수 있는 버튼과 투표한 학교를 볼 수 있는 버튼이 나타납니다.
 
 ### 2. 로그인 페이지
+<img src="https://github.com/user-attachments/assets/570e29fe-0f56-4622-970a-c4061f15d578" width="700">
+
+* 로그인 페이지입니다.
+* 구글 아이디로 로그인할 수 있습니다.
 
 ### 3. 대학 순위 투표 페이지
 <img src="https://github.com/user-attachments/assets/9c55c09c-16c9-4360-81f4-1863c3161a77" width="700">
