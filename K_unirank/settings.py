@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'mathfilters',
     'vote',
-    'user',
 ]
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '958250892002-vlsjt427tlsaqss8obm4rg9jmckevvlp.apps.googleusercontent.com'

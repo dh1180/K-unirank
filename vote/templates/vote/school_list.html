@@ -1,147 +1,261 @@
-{% extends "vote/base.html" %} {% block content %} {% load humanize %}
+{% extends "vote/base.html" %}
+{% block content %}
+{% load humanize %}
 {% load static %}
 
-<style>    
-    @media (max-width: 576px) {
-        html {
-            font-size: 14px;
+<style>
+    .ranking-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .ranking-title {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        text-align: center;
+        margin-bottom: 2rem;
+        font-weight: 700;
+    }
+    
+    .ranking-table {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        overflow: hidden;
+        background-color: #fff;
+    }
+    
+    .ranking-table th {
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        padding: 1rem;
+    }
+    
+    .ranking-table td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    
+    .school-row {
+        transition: all 0.3s ease;
+    }
+    
+    .school-row:hover {
+        background-color: rgba(74, 144, 226, 0.1);
+        transform: translateY(-3px);
+        cursor: pointer;
+    }
+    
+    .school-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .school-logo {
+        width: 40px;
+        height: 40px;
+        object-fit: contain;
+        border-radius: 50%;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .school-name-container {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .school-name {
+        font-weight: 600;
+        color: var(--text-color);
+    }
+    
+    .vote-status {
+        width: 14px;
+        height: 14px;
+        vertical-align: middle;
+    }
+    
+    .school-rank {
+        font-weight: 700;
+        color: var(--secondary-color);
+        font-size: 1.1rem;
+    }
+    
+    .school-score {
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+    
+    .modal-content {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .modal-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 1.5rem;
+    }
+    
+    .modal-body {
+        padding: 2rem;
+    }
+    
+    .modal-school-logo {
+        max-width: 120px;
+        max-height: 120px;
+        object-fit: contain;
+        margin-bottom: 1rem;
+    }
+    
+    .modal-school-name {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin-bottom: 1rem;
+    }
+    
+    .modal-footer .btn {
+        font-weight: 600;
+        text-transform: uppercase;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+    }
+
+    @media (max-width: 768px) {
+        .ranking-container {
+            padding: 10px;
+        }
+        .ranking-title {
+            font-size: 1.8rem;
+        }
+        .ranking-table {
+            font-size: 0.9rem;
+        }
+        .ranking-table th, .ranking-table td {
+            padding: 0.75rem 0.3rem;
+        }
+        .school-logo {
+            width: 30px;
+            height: 30px;
+        }
+        .school-name {
+            font-size: 0.8rem;
+        }
+        .school-rank, .school-score {
+            font-size: 0.8rem;
+        }
+        .vote-status {
+            width: 12px;
+            height: 12px;
+        }
+        .ranking-table th:first-child {
+            width: 50px;
+        }
+        .ranking-table th:last-child {
+            width: 60px;
+        }
+        .school-row {
+            border-bottom: 8px solid #f8f9fa;
+        }
+        .school-row:last-child {
+            border-bottom: none;
         }
     }
-    
-    .non-bold {
-        font-weight: normal;
-    }
-    
-    .container {
-        font-weight: bold;
-    }
-    
-    .schools:hover {
-        background: #E2E2E2;
-    }
 </style>
-<br />
 
-<div class="container">
-    <div class="row">
-
-            
-        <table class="table align-middle">
-            <tr class="disabled">
-                <th scope="col" class="col-md-1 col-2 text-center">순위</th>
-                <th scope="col" colspan="2">대학명</th>
-                <th scope="col">점수</th>
-            </tr>
-            {% for school, rank in myzip %}
-            <tr class="schools" data-bs-toggle="modal" data-bs-target="#exampleModal"
-                data-school-name="{{ school.school_name }}" 
-                data-school-image="{% if school.school_image %}{{ school.school_image.url }}{% endif %}"
-                data-school-jungsi="{% if school.jungsi_school_pdf %}{{ school.jungsi_school_pdf.url }}{% endif %}"
-                data-school-susi="{% if school.susi_school_pdf %}{{ school.susi_school_pdf.url }}{% endif %}">  
-                <td width="10%" class="text-center">{{ rank }}</td>
-
-                {% if school.school_image %}
-                <td height="100" width="70%" class="school_name">
-                    <img src="{{ school.school_image.url }}" style="width: 6vw"/>
-                    &nbsp;&nbsp;{{ school.school_name }}
-                {% if user.is_authenticated %}
-                {% if school in voted_school %}
-                <img src="/media/icon/check.png" width="13" />
-                {% else %}
-                <img src="/media/icon/x.png" width="13" />
-                {% endif %}
-                {% endif %}
-                    
-                {% else %}
-                <td>
-                    <img src="" style="width: 100px" />
-                    {{ school.school_name }}
-                </td>
-                {% endif %}
-                
-                <td></td>
-               
-                <td width="10%" class="score"> {{ school.get_average_score|floatformat:3 }}</td>
-            </tr>
-            
-            {% endfor %}
+<div class="ranking-container">
+    <h1 class="ranking-title">2024 대학교 순위</h1>
+    <div class="table-responsive ranking-table">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th scope="col" class="text-center">순위</th>
+                    <th scope="col">대학교</th>
+                    <th scope="col" class="text-end">점수</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for school, rank in myzip %}
+                <tr class="school-row" data-bs-toggle="modal" data-bs-target="#schoolModal"
+                    data-school-name="{{ school.school_name }}" 
+                    data-school-image="{% if school.school_image %}{{ school.school_image.url }}{% endif %}"
+                    data-school-jungsi="{% if school.jungsi_school_pdf %}{{ school.jungsi_school_pdf.url }}{% endif %}"
+                    data-school-susi="{% if school.susi_school_pdf %}{{ school.susi_school_pdf.url }}{% endif %}">  
+                    <td class="text-center school-rank">{{ rank }}</td>
+                    <td>
+                        <div class="school-info">
+                            <img src="{% if school.school_image %}{{ school.school_image.url }}{% else %}{% static 'images/default_school_logo.png' %}{% endif %}" 
+                                 alt="{{ school.school_name }} 로고" class="school-logo"/>
+                            <div class="school-name-container">
+                                <span class="school-name">{{ school.school_name }}</span>
+                                {% if user.is_authenticated %}
+                                    <img src="{% if school in voted_school %}/media/icon/check.png{% else %}/media/icon/x.png{% endif %}" 
+                                         class="vote-status" alt="{% if school in voted_school %}투표됨{% else %}투표안됨{% endif %}" 
+                                         title="{% if school in voted_school %}투표됨{% else %}투표안됨{% endif %}" />
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-end school-score">{{ school.get_average_score|floatformat:3 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
 </div>
+
 <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <!--모달 제목-->
-        <h5 class="modal-title" id="modal-title"></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <!--모달 이미지, 내용-->
-        <div class="text-center">
-            <img id="modalSchoolImage" src="" alt="School Image" style="height: 15vh" />
-            <br/>
-            <p style="display: inline; font-weight: bold;" id="modalSchoolName"></p>
+<div class="modal fade" id="schoolModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-title"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalSchoolImage" src="" alt="School Image" class="modal-school-logo" style="height: 15vh" />
+                <h4 id="modalSchoolName" class="modal-school-name"></h4>
+            </div>
+            <div class="modal-footer" id="modalFooter">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
         </div>
-      </div>
-      <div class="modal-footer" id="modalFooter">
-            <button id="susi" type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="display: none;">수시 결과</button>
-            <button id="jungsi" type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="display: none;">정시 결과</button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-      </div>
     </div>
-  </div>
 </div>
 
 <script>
 $(document).ready(function() {
-    $('#exampleModal').on('show.bs.modal', function (event) {
+    $('#schoolModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
         var schoolName = button.data('school-name');
         var schoolImage = button.data('school-image');
-        var schoolScore = button.data('school-score');
         var jungsiSchoolPdf = button.data('school-jungsi');
         var susiSchoolPdf = button.data('school-susi');
 
-        var susi = $('#susi');
-        var jungsi = $('#jungsi');
-        
         var modalFooter = $('#modalFooter');
 
         $('#modal-title').text(schoolName);
-        $('#modalSchoolImage').attr('src', schoolImage ? schoolImage : 'placeholder-image-url');
+        $('#modalSchoolImage').attr('src', schoolImage || '{% static "images/default_school_logo.png" %}');
         $('#modalSchoolName').text(schoolName);
 
-        // 이전에 추가된 버튼들을 제거합니다.
         modalFooter.find('.pdf-button').remove();
 
-        // 수시 PDF 버튼 생성
         if (susiSchoolPdf && jungsiSchoolPdf) {
-            var viewJungsiPdfButton = $('<button type="button" class="btn btn-primary pdf-button">정시 결과</button>');
-            viewJungsiPdfButton.on('click', function() {
-                window.open(jungsiSchoolPdf, '_blank');
-            });
-            modalFooter.prepend(viewJungsiPdfButton);
-            
-            var viewSusiPdfButton = $('<button type="button" class="btn btn-primary pdf-button">수시 결과</button>');
-            viewSusiPdfButton.on('click', function() {
-                window.open(susiSchoolPdf, '_blank');
-            });
-            modalFooter.prepend(viewSusiPdfButton);
+            modalFooter.prepend(`
+                <button type="button" class="btn btn-primary pdf-button" onclick="window.open('${jungsiSchoolPdf}', '_blank')">정시 결과</button>
+                <button type="button" class="btn btn-primary pdf-button" onclick="window.open('${susiSchoolPdf}', '_blank')">수시 결과</button>
+            `);
+        } else if (susiSchoolPdf) {
+            modalFooter.prepend(`
+                <button type="button" class="btn btn-primary pdf-button" onclick="window.open('${susiSchoolPdf}', '_blank')">수시/정시 결과</button>
+            `);
         }
-        
-        else if (susiSchoolPdf) {
-            var viewSusiPdfButton = $('<button type="button" class="btn btn-primary pdf-button">수시/정시 결과</button>');
-            viewSusiPdfButton.on('click', function() {
-                window.open(susiSchoolPdf, '_blank');
-            });
-            modalFooter.prepend(viewSusiPdfButton);
-        }
-
-
     });
 });
 </script>
-
 {% endblock %}
