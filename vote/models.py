@@ -24,3 +24,6 @@ class School_score(models.Model):
     school = models.ForeignKey(School, on_delete=models.CASCADE)
     voted_user = models.ForeignKey(User, on_delete=models.CASCADE)
     individual_score = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.school.school_name} - {self.voted_user.username}: {self.individual_score}"
