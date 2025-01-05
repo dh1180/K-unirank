@@ -193,15 +193,10 @@
                                  alt="{{ school.school_name }} 로고" class="school-logo"/>
                             <div class="school-name-container">
                                 <span class="school-name">{{ school.school_name }}</span>
-                                {% if user.is_authenticated %}
-                                    <img src="{% if school in voted_school %}/media/icon/check.png{% else %}/media/icon/x.png{% endif %}" 
-                                         class="vote-status" alt="{% if school in voted_school %}투표됨{% else %}투표안됨{% endif %}" 
-                                         title="{% if school in voted_school %}투표됨{% else %}투표안됨{% endif %}" />
-                                {% endif %}
                             </div>
                         </div>
                     </td>
-                    <td class="text-end school-score">{{ school.get_average_score|floatformat:3 }}</td>
+                    <td class="text-end school-score"></td>
                 </tr>
                 {% endfor %}
             </tbody>

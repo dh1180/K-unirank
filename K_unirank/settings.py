@@ -40,44 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
     'mathfilters',
     'vote',
 ]
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '958250892002-vlsjt427tlsaqss8obm4rg9jmckevvlp.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
-
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
-)
-
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'APP': {
-            'client_id': SOCIAL_AUTH_GOOGLE_OAUTH2_KEY,
-            'secret': SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET,
-            'key': '',
-        }
-    },
-
-}
-
-SOCIALACCOUNT_LOGIN_ON_GET = True
-
-ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_USERNAME_REQUIRED = False
-
-ACCOUNT_LOGOUT_ON_GET = True
-LOGIN_REDIRECT_URL = 'vote:school_list'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -87,7 +52,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'K_unirank.urls'

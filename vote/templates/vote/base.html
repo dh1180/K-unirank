@@ -1,4 +1,3 @@
-{% load static %} {% load socialaccount %}
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -108,28 +107,12 @@
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
                 <ul class="navbar-nav">
-                    {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'vote:school_score' %}">
+                        <a class="nav-link" href="/">
                             <img src="/media/icon/vote.png" width="20" alt="투표" />
                             대학 순위 투표
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'vote:user_voted' %}">
-                            <img src="/media/icon/record.png" width="19" alt="기록" />
-                            투표한 대학
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'account_logout' %}">로그아웃</a>
-                    </li>
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% provider_login_url 'google' %}">로그인</a>
-                    </li>
-                    {% endif %}
-
                     {% if user.is_superuser %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'vote:upload' %}">대학 로고 업로드</a>
