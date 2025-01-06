@@ -9,4 +9,5 @@ urlpatterns = [
     path('upload', views.upload, name='upload'),
     path('jungsi_pdf_upload', views.jungsi_pdf_upload, name='jungsi_pdf_upload'),
     path('susi_pdf_upload', views.susi_pdf_upload, name='susi_pdf_upload'),
+    path('vote/', views.vote_page, name='vote_page'),
 ]

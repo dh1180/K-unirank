@@ -1,0 +1,102 @@
+{% extends 'vote/base.html' %}
+
+{% block content %}
+<div class="vote-container">
+    
+    <br>
+
+    <div class="schools-container">
+        <form method="POST" class="school-form">
+            {% csrf_token %}
+            <input type="hidden" name="other_school" value="{{ school2.id }}">
+            <input type="hidden" name="selected_school" value="{{ school1.id }}">
+            <div onclick="this.closest('form').submit();">
+                <div class="school-image-container">
+                    {% if school1.school_image %}
+                        <img src="{{ school1.school_image.url }}" alt="{{ school1.school_name }}" class="school-image">
+                    {% else %}
+                        <div class="no-image">이미지 없음</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="school-name">{{ school1.school_name }}</div>
+        </form>
+        
+        <div class="fw-bold">VS</div>
+        
+        <form method="POST" class="school-form">
+            {% csrf_token %}
+            <input type="hidden" name="other_school" value="{{ school1.id }}">
+            <input type="hidden" name="selected_school" value="{{ school2.id }}">
+            <div class="school-image-container" onclick="this.closest('form').submit();">
+                {% if school2.school_image %}
+                    <img src="{{ school2.school_image.url }}" alt="{{ school2.school_name }}" class="school-image">
+                {% else %}
+                    <div class="no-image">이미지 없음</div>
+                {% endif %}
+            </div>
+            <div class="school-name">{{ school2.school_name }}</div>
+        </form>
+    </div>
+    
+    <br>
+    <br>
+    <a href="{% url 'vote:school_list' %}" class="btn btn-outline-secondary">메인 페이지로 돌아가기</a>
+</div>
+
+<style>
+.schools-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+}
+
+.school-image-container {
+    background: white;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    width: 280px;
+}
+
+.school-image-container:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.school-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3/2;
+    object-fit: contain;
+}
+
+.school-name {
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 16px;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .schools-container {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .school-image-container {
+        width: 200px;
+        padding: 8px;
+    }
+    
+    .school-name {
+        font-size: 14px;
+        margin-top: 8px;
+    }
+}
+</style>
+
+{% endblock %}

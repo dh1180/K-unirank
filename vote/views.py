@@ -3,6 +3,7 @@ from .models import School
 import requests
 from django.contrib import messages
 from django.db.models import Avg
+import random
 
 # Create your views here.
 
@@ -100,3 +101,34 @@ def jungsi_pdf_upload(request):
         'is_superuser': request.user.is_superuser
     }
     return render(request, 'vote/jungsi_pdf_upload.html', context)  
+
+
+def vote_page(request):
+    if request.method == 'POST':
+        winner_id = request.POST.get('selected_school')
+        loser_id = request.POST.get('other_school')
+        
+        # 선택된 학교와 선택되지 않은 학교의 점수 업데이트
+        winner = School.objects.get(id=winner_id)
+        loser = School.objects.get(id=loser_id)
+        
+        winner.school_score += 1
+        loser.school_score -= 1
+        
+        winner.save()
+        loser.save()
+        
+        return redirect('vote:vote_page')
+    
+    # 랜덤하게 두 개의 학교 선택
+    schools = list(School.objects.all())
+    if len(schools) < 2:
+        return render(request, 'vote/error.html', {'message': '학교가 충분하지 않습니다.'})
+    
+    selected_schools = random.sample(schools, 2)
+    
+    context = {
+        'school1': selected_schools[0],
+        'school2': selected_schools[1],
+    }
+    return render(request, 'vote/vote_page.html', context)  

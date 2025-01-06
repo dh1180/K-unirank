@@ -98,9 +98,9 @@
         data-ad-unit = "DAN-4r2w24dDA1owYfUn"
         data-ad-width = "320"
         data-ad-height = "50"></ins>
-    <nav class="navbar navbar-expand-md navbar-light">
+    <nav class="navbar navbar-expand-md navbar-light py-1">
         <div class="container">
-            <a class="navbar-brand" href="/">K-unirank</a>
+            <a class="navbar-brand py-0" href="/">K-unirank</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -108,20 +108,20 @@
             <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="/">
+                        <a class="nav-link py-1" href="{% url 'vote:vote_page' %}">
                             <img src="/media/icon/vote.png" width="20" alt="투표" />
                             대학 순위 투표
                         </a>
                     </li>
                     {% if user.is_superuser %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'vote:upload' %}">대학 로고 업로드</a>
+                        <a class="nav-link py-1" href="{% url 'vote:upload' %}">대학 로고 업로드</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'vote:jungsi_pdf_upload' %}">정시 업로드</a>
+                        <a class="nav-link py-1" href="{% url 'vote:jungsi_pdf_upload' %}">정시 업로드</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'vote:susi_pdf_upload' %}">수시 업로드</a>
+                        <a class="nav-link py-1" href="{% url 'vote:susi_pdf_upload' %}">수시 업로드</a>
                     </li>
                     {% endif %}
                 </ul>
