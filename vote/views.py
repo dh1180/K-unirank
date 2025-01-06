@@ -1,3 +1,4 @@
+
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import School
 import requests
@@ -104,19 +105,55 @@ def jungsi_pdf_upload(request):
     return render(request, 'vote/jungsi_pdf_upload.html', context)  
 
 
+def update_school_scores(winner, loser, k_factor=32):
+    # 순위 차이에 따른 k_factor 조정
+    rank_diff = abs(winner.rank - loser.rank)
+    adjusted_k = k_factor * (1.0 / (1 + rank_diff/5))  # 순위 차이가 클수록 k_factor 감소
+    
+    # ELO 계산
+    expected_winner = 1 / (1 + 10**((loser.school_score - winner.school_score) / 400))
+    
+    # 점수 업데이트
+    winner.school_score += adjusted_k * (1 - expected_winner)
+    loser.school_score += adjusted_k * (0 - (1 - expected_winner))
+    
+    winner.save()
+    loser.save()
+
+def get_comparable_schools(base_school, schools_with_rank):
+    current_rank = base_school.rank
+    
+    # 구간별 범위 설정
+    if current_rank <= 10:
+        range_limit = 3
+    elif current_rank > 50:
+        range_limit = 7
+    else:
+        range_limit = 5
+        
+    return schools_with_rank.filter(
+        rank__gte=max(1, current_rank - range_limit),
+        rank__lte=current_rank + range_limit
+    ).exclude(id=base_school.id)
+
 def vote_page(request):
     if request.method == 'POST':
         winner_id = request.POST.get('selected_school')
         loser_id = request.POST.get('other_school')
         
-        winner = School.objects.get(id=winner_id)
-        loser = School.objects.get(id=loser_id)
+        # rank를 포함하여 학교 정보 가져오기
+        schools_with_rank = School.objects.annotate(
+            rank=Window(
+                expression=Rank(),
+                order_by=F('school_score').desc()
+            )
+        )
         
-        winner.school_score += 1
-        loser.school_score -= 1
+        winner = schools_with_rank.get(id=winner_id)
+        loser = schools_with_rank.get(id=loser_id)
         
-        winner.save()
-        loser.save()
+        # ELO 시스템으로 점수 업데이트
+        update_school_scores(winner, loser)
         
         return redirect('vote:vote_page')
     
@@ -130,13 +167,9 @@ def vote_page(request):
     
     # 랜덤으로 첫 번째 학교 선택
     school1 = random.choice(schools_with_rank)
-    school1_rank = school1.rank
     
-    # school1의 순위 기준으로 위아래 5개씩의 학교들 필터링
-    nearby_schools = schools_with_rank.filter(
-        rank__gte=max(1, school1_rank - 5),  # 1순위보다 작아지지 않도록
-        rank__lte=school1_rank + 5
-    ).exclude(id=school1.id)
+    # school1의 순위 기준으로 비교 가능한 학교들 필터링
+    nearby_schools = get_comparable_schools(school1, schools_with_rank)
     
     if nearby_schools.exists():
         school2 = random.choice(nearby_schools)
