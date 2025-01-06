@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import School
 import requests
-from django.contrib import messages
-from django.db.models import Avg
+from django.db.models import F, Window
+from django.db.models.functions import Rank, DenseRank
 import random
+from django.core.paginator import Paginator
+from django.http import JsonResponse
 
 # Create your views here.
 
@@ -14,39 +16,38 @@ data = response.json()
 
 
 def school_list(request):
-     # 총 400개의 대학교가 있음
-    schools = School.objects.all().order_by('-school_score')
-
-    li = [school.school_score for school in schools]
-    scores = []
-
-    num = 0
-    tf = 0
+    # DenseRank를 사용하여 동점자 처리
+    schools = School.objects.annotate(
+        rank=Window(
+            expression=Rank(),
+            order_by=F('school_score').desc()
+        )
+    ).order_by('rank')
     
-    # 학교 순위를 지정해주는 반복문 -> 동일 점수 시 같은 순위 부여
-    for i in range(399):
-        if(li[i] == li[i+1]):
-            scores.append(num+1)
-            tf += 1
-        else:
-            scores.append(num+1)
-            num += 1 + tf
-            tf = 0
-    scores.append(num+1)
-
-    """ 학교리스트 생성코드
-    for item in data['dataSearch']['content']:
-        existing_school = School.objects.filter(school_name=item['schoolName']).first()
-
-        if existing_school is None:
-            new_school = School(school_name=item['schoolName'], school_address=item['adres'])
-            new_school.save()
-        else:
-            continue
-    """
-
-    myzip = zip(schools, scores)
-    return render(request, 'vote/school_list.html', {'myzip': myzip})
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        page = int(request.GET.get('page', 1))
+        paginator = Paginator(schools, 50)
+        
+        try:
+            schools_page = paginator.page(page)
+            schools_data = [{
+                'id': school.id,
+                'name': school.school_name,
+                'score': school.school_score,
+                'rank': school.rank,  # 계산된 순위 사용
+                'image': school.school_image.url if school.school_image else None,
+            } for school in schools_page]
+            
+            return JsonResponse({
+                'schools': schools_data,
+                'has_next': schools_page.has_next()
+            })
+        except:
+            return JsonResponse({'has_next': False, 'schools': []})
+    
+    # 초기 로드: 상위 50개만
+    initial_schools = schools[:50]
+    return render(request, 'vote/school_list.html', {'schools': initial_schools})
 
 
 def upload(request):
@@ -108,7 +109,6 @@ def vote_page(request):
         winner_id = request.POST.get('selected_school')
         loser_id = request.POST.get('other_school')
         
-        # 선택된 학교와 선택되지 않은 학교의 점수 업데이트
         winner = School.objects.get(id=winner_id)
         loser = School.objects.get(id=loser_id)
         
@@ -120,15 +120,32 @@ def vote_page(request):
         
         return redirect('vote:vote_page')
     
-    # 랜덤하게 두 개의 학교 선택
-    schools = list(School.objects.all())
-    if len(schools) < 2:
-        return render(request, 'vote/error.html', {'message': '학교가 충분하지 않습니다.'})
+    # 순위를 포함한 학교 목록 가져오기
+    schools_with_rank = School.objects.annotate(
+        rank=Window(
+            expression=Rank(),
+            order_by=F('school_score').desc()
+        )
+    )
     
-    selected_schools = random.sample(schools, 2)
+    # 랜덤으로 첫 번째 학교 선택
+    school1 = random.choice(schools_with_rank)
+    school1_rank = school1.rank
+    
+    # school1의 순위 기준으로 위아래 5개씩의 학교들 필터링
+    nearby_schools = schools_with_rank.filter(
+        rank__gte=max(1, school1_rank - 5),  # 1순위보다 작아지지 않도록
+        rank__lte=school1_rank + 5
+    ).exclude(id=school1.id)
+    
+    if nearby_schools.exists():
+        school2 = random.choice(nearby_schools)
+    else:
+        # 근처에 학교가 없으면 다른 학교 랜덤 선택
+        school2 = random.choice(schools_with_rank.exclude(id=school1.id))
     
     context = {
-        'school1': selected_schools[0],
-        'school2': selected_schools[1],
+        'school1': school1,
+        'school2': school2,
     }
     return render(request, 'vote/vote_page.html', context)  
