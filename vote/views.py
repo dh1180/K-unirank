@@ -6,6 +6,7 @@ from django.db.models.functions import Rank, DenseRank
 import random
 from django.core.paginator import Paginator
 from django.http import JsonResponse
+from django.db.models import Count, Case, When, Value, IntegerField
 
 # Create your views here.
 
@@ -104,31 +105,36 @@ def jungsi_pdf_upload(request):
     return render(request, 'vote/jungsi_pdf_upload.html', context)  
 
 
-def update_school_scores(winner, loser, k_factor=32):
-    # 순위 차이와 점수 차이 모두 계산
-    rank_diff = winner.rank - loser.rank  # 양수: 낮은 순위가 이김, 음수: 높은 순위가 이김
-    score_diff = float(winner.school_score) - float(loser.school_score)  # 점수 차이
+def update_school_scores(winner, loser, k_factor=16):
+    # 순위 차이와 점수 차이 계산
+    rank_diff = winner.rank - loser.rank
+    score_diff = float(winner.school_score) - float(loser.school_score)
     
-    # 순위와 점수 차이를 모두 고려한 k_factor 조정
-    if rank_diff > 0:  # 낮은 순위가 높은 순위를 이겼을 때
-        # 점수 차이가 클수록 더 큰 보상
-        score_weight = abs(score_diff) / 10  # 점수 차이에 따른 가중치
-        adjusted_k = k_factor * (1.0 + rank_diff/10 + score_weight)
-    elif rank_diff < 0:  # 높은 순위가 낮은 순위를 이겼을 때
-        # 점수 차이가 클수록 더 작은 보상
-        score_weight = abs(score_diff) / 10
-        adjusted_k = k_factor * (1.0 / (1 + abs(rank_diff)/5 + score_weight))
+    # 순위와 점수 차이를 고려한 k_factor 조정
+    if rank_diff > 0:  # 낮은 순위가 이겼을 때
+        score_weight = abs(score_diff) / 20
+        adjusted_k = k_factor * (1.0 + rank_diff/20 + score_weight)
+    elif rank_diff < 0:  # 높은 순위가 이겼을 때
+        score_weight = abs(score_diff) / 20
+        adjusted_k = k_factor * (1.0 / (1 + abs(rank_diff)/10 + score_weight))
     else:  # 같은 순위끼리 겨룰 때
-        # 점수 차이만 고려
-        score_weight = abs(score_diff) / 10
+        score_weight = abs(score_diff) / 20
         adjusted_k = k_factor * (1.0 + score_weight)
+    
+    # 최대 k_factor 제한
+    adjusted_k = min(adjusted_k, k_factor * 2)
     
     # ELO 계산
     expected_winner = 1 / (1 + 10**((float(loser.school_score) - float(winner.school_score)) / 400))
     
+    # 점수 변동 계산 및 제한
+    point_change = adjusted_k * (1 - expected_winner)
+    max_change = 15.0
+    point_change = max(min(point_change, max_change), -max_change)
+    
     # 점수 업데이트
-    winner.school_score = float(winner.school_score) + (adjusted_k * (1 - expected_winner))
-    loser.school_score = float(loser.school_score) + (adjusted_k * (0 - (1 - expected_winner)))
+    winner.school_score = float(winner.school_score) + point_change
+    loser.school_score = float(loser.school_score) - point_change
     
     winner.save()
     loser.save()
@@ -147,28 +153,30 @@ def get_comparable_schools(base_school, schools_with_rank):
         rank__lte=current_rank + range_limit
     ).exclude(id=base_school.id)
 
+def get_school_rank(school):
+    # 해당 학교보다 점수가 높은 학교 수를 세서 순위 계산
+    higher_scores = School.objects.filter(
+        school_score__gt=school.school_score
+    ).count()
+    return higher_scores + 1
+
 def vote_page(request):
     if request.method == 'POST':
         winner_id = request.POST.get('selected_school')
         loser_id = request.POST.get('other_school')
         
-        # rank를 포함하여 학교 정보 가져오기
-        schools_with_rank = School.objects.annotate(
-            rank=Window(
-                expression=Rank(),
-                order_by=F('school_score').desc()
-            )
-        )
+        # 기본 정보 가져오기
+        winner = School.objects.get(id=winner_id)
+        loser = School.objects.get(id=loser_id)
         
-        winner = schools_with_rank.get(id=winner_id)
-        loser = schools_with_rank.get(id=loser_id)
+        # 순위 계산
+        winner.rank = get_school_rank(winner)
+        loser.rank = get_school_rank(loser)
         
-        # ELO 시스템으로 점수 업데이트
         update_school_scores(winner, loser)
-        
         return redirect('vote:vote_page')
     
-    # 순위를 포함한 학교 목록 가져오기
+    #순위를 포함한 학교 목록 가져오기
     schools_with_rank = School.objects.annotate(
         rank=Window(
             expression=Rank(),
