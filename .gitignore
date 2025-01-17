@@ -179,9 +179,6 @@ env/
 .env/
 .venv/
 
-# Django Settings
-**/settings.py
-
 # Python
 __pycache__/
 *.py[cod]

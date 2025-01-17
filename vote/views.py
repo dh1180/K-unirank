@@ -1,4 +1,3 @@
-
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import School
 import requests
@@ -106,16 +105,30 @@ def jungsi_pdf_upload(request):
 
 
 def update_school_scores(winner, loser, k_factor=32):
-    # 순위 차이에 따른 k_factor 조정
-    rank_diff = abs(winner.rank - loser.rank)
-    adjusted_k = k_factor * (1.0 / (1 + rank_diff/5))  # 순위 차이가 클수록 k_factor 감소
+    # 순위 차이와 점수 차이 모두 계산
+    rank_diff = winner.rank - loser.rank  # 양수: 낮은 순위가 이김, 음수: 높은 순위가 이김
+    score_diff = float(winner.school_score) - float(loser.school_score)  # 점수 차이
+    
+    # 순위와 점수 차이를 모두 고려한 k_factor 조정
+    if rank_diff > 0:  # 낮은 순위가 높은 순위를 이겼을 때
+        # 점수 차이가 클수록 더 큰 보상
+        score_weight = abs(score_diff) / 10  # 점수 차이에 따른 가중치
+        adjusted_k = k_factor * (1.0 + rank_diff/10 + score_weight)
+    elif rank_diff < 0:  # 높은 순위가 낮은 순위를 이겼을 때
+        # 점수 차이가 클수록 더 작은 보상
+        score_weight = abs(score_diff) / 10
+        adjusted_k = k_factor * (1.0 / (1 + abs(rank_diff)/5 + score_weight))
+    else:  # 같은 순위끼리 겨룰 때
+        # 점수 차이만 고려
+        score_weight = abs(score_diff) / 10
+        adjusted_k = k_factor * (1.0 + score_weight)
     
     # ELO 계산
-    expected_winner = 1 / (1 + 10**((loser.school_score - winner.school_score) / 400))
+    expected_winner = 1 / (1 + 10**((float(loser.school_score) - float(winner.school_score)) / 400))
     
     # 점수 업데이트
-    winner.school_score += adjusted_k * (1 - expected_winner)
-    loser.school_score += adjusted_k * (0 - (1 - expected_winner))
+    winner.school_score = float(winner.school_score) + (adjusted_k * (1 - expected_winner))
+    loser.school_score = float(loser.school_score) + (adjusted_k * (0 - (1 - expected_winner)))
     
     winner.save()
     loser.save()
@@ -126,8 +139,6 @@ def get_comparable_schools(base_school, schools_with_rank):
     # 구간별 범위 설정
     if current_rank <= 10:
         range_limit = 3
-    elif current_rank > 50:
-        range_limit = 7
     else:
         range_limit = 5
         
