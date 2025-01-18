@@ -147,11 +147,15 @@ def get_comparable_schools(base_school, schools_with_rank):
         range_limit = 3
     else:
         range_limit = 5
-        
-    return schools_with_rank.filter(
-        rank__gte=max(1, current_rank - range_limit),
-        rank__lte=current_rank + range_limit
-    ).exclude(id=base_school.id)
+    
+    # 먼저 범위에 맞는 학교들을 필터링
+    comparable_schools = [
+        school for school in schools_with_rank
+        if school.id != base_school.id
+        and max(1, current_rank - range_limit) <= school.rank <= current_rank + range_limit
+    ]
+    
+    return comparable_schools
 
 def get_school_rank(school):
     # 해당 학교보다 점수가 높은 학교 수를 세서 순위 계산
@@ -190,7 +194,7 @@ def vote_page(request):
     # school1의 순위 기준으로 비교 가능한 학교들 필터링
     nearby_schools = get_comparable_schools(school1, schools_with_rank)
     
-    if nearby_schools.exists():
+    if len(nearby_schools) > 0:
         school2 = random.choice(nearby_schools)
     else:
         # 근처에 학교가 없으면 다른 학교 랜덤 선택
