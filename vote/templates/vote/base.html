@@ -94,10 +94,6 @@
     </style>
 </head>
 <body>
-    <ins class="kakao_ad_area" style="display:none;"
-        data-ad-unit = "DAN-4r2w24dDA1owYfUn"
-        data-ad-width = "320"
-        data-ad-height = "50"></ins>
     <nav class="navbar navbar-expand-md navbar-light py-1">
         <div class="container">
             <a class="navbar-brand py-0" href="{% url 'vote:school_list' %}">
@@ -130,6 +126,11 @@
             </div>
         </div>
     </nav>
+    <ins class="kakao_ad_area" style="display: inline-block; position: relative; text-decoration: none; 
+    min-width: 160px; min-height: 600px; width: 160px; height: 600px;"
+    data-ad-unit = "DAN-4r2w24dDA1owYfUn"
+    data-ad-width = "320"
+    data-ad-height = "50"></ins>
     <div class="container">
         <div class="content-wrapper">
             {% block content %}{% endblock %}
