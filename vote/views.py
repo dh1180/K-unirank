@@ -105,37 +105,127 @@ def jungsi_pdf_upload(request):
     return render(request, 'vote/jungsi_pdf_upload.html', context)  
 
 
-def update_school_scores(winner, loser, k_factor=16):
-    # 순위 차이와 점수 차이 계산
-    rank_diff = winner.rank - loser.rank
-    score_diff = float(winner.school_score) - float(loser.school_score)
+def update_school_scores(winner, loser, k_factor=30):
+    # 구간별 대학 리스트와 점수 범위 설정
+    tiers = {
+        "tier1": {
+            "schools": ["서울대학교", "포항공과대학교", "한국과학기술원", "연세대학교", "고려대학교"],
+            "min_score": 900,
+            "max_score": 1000
+        },
+        "tier2": {
+            "schools": ["서강대학교", "성균관대학교", "한양대학교"],
+            "min_score": 800,
+            "max_score": 899
+        },
+        "tier3": {
+            "schools": ["중앙대학교", "경희대학교", "한국외국어대학교", "서울시립대학교"],
+            "min_score": 700,
+            "max_score": 799
+        },
+        "tier4": {
+            "schools": ["건국대학교", "동국대학교", "홍익대학교"],
+            "min_score": 600,
+            "max_score": 699
+        },
+        "tier5": {
+            "schools": ["국민대학교", "숭실대학교", "세종대학교", "단국대학교"],
+            "min_score": 500,
+            "max_score": 599
+        },
+        "tier6": {
+            "schools": ["광운대학교", "명지대학교", "상명대학교", "가톨릭대학교"],
+            "min_score": 400,
+            "max_score": 499
+        },
+        "tier7": {
+            "schools": ["한성대학교", "서경대학교", "삼육대학교"],
+            "min_score": 300,
+            "max_score": 399
+        }
+    }
+
+    def find_tier_info(school_name):
+        for tier_num, (tier, info) in enumerate(tiers.items()):
+            if school_name in info["schools"]:
+                return tier_num, info["min_score"], info["max_score"]
+        return None, None, None
+
+    winner_info = find_tier_info(winner.school_name)
+    loser_info = find_tier_info(loser.school_name)
     
-    # 순위와 점수 차이를 고려한 k_factor 조정
-    if rank_diff > 0:  # 낮은 순위가 이겼을 때
-        score_weight = abs(score_diff) / 20
-        adjusted_k = k_factor * (1.0 + rank_diff/20 + score_weight)
-    elif rank_diff < 0:  # 높은 순위가 이겼을 때
-        score_weight = abs(score_diff) / 20
-        adjusted_k = k_factor * (1.0 / (1 + abs(rank_diff)/10 + score_weight))
-    else:  # 같은 순위끼리 겨룰 때
-        score_weight = abs(score_diff) / 20
-        adjusted_k = k_factor * (1.0 + score_weight)
-    
-    # 최대 k_factor 제한
-    adjusted_k = min(adjusted_k, k_factor * 2)
-    
-    # ELO 계산
-    expected_winner = 1 / (1 + 10**((float(loser.school_score) - float(winner.school_score)) / 400))
-    
-    # 점수 변동 계산 및 제한
-    point_change = adjusted_k * (1 - expected_winner)
-    max_change = 15.0
-    point_change = max(min(point_change, max_change), -max_change)
-    
-    # 점수 업데이트
-    winner.school_score = float(winner.school_score) + point_change
-    loser.school_score = float(loser.school_score) - point_change
-    
+    # 티어에 속한 대학들의 경우
+    if winner_info[0] is not None and loser_info[0] is not None:
+        winner_tier, winner_min, winner_max = winner_info
+        loser_tier, loser_min, loser_max = loser_info
+        
+        # ELO 계산
+        expected_winner = 1 / (1 + 10**((float(loser.school_score) - float(winner.school_score)) / 400))
+        point_change = k_factor * (1 - expected_winner)
+        
+        # 기본 점수 변동 제한
+        max_change = 15.0
+        point_change = max(min(point_change, max_change), -max_change)
+        
+        # 새로운 점수 계산
+        new_winner_score = float(winner.school_score) + point_change
+        new_loser_score = float(loser.school_score) - point_change
+        
+        # 승자의 점수가 상한선을 넘는 경우
+        if new_winner_score > winner_max and point_change > 0:
+            # 상승폭만 극단적으로 감소 (0.1배)
+            point_change *= 0.1
+            
+        # 승자의 점수가 하한선 미만인 경우
+        elif new_winner_score < winner_min and point_change < 0:
+            # 하락폭만 극단적으로 감소 (0.1배)
+            point_change *= 0.1
+            
+        # 패자의 점수가 상한선을 넘는 경우
+        if new_loser_score > loser_max and point_change < 0:
+            # 상승폭만 극단적으로 감소 (0.1배)
+            point_change *= 0.1
+            
+        # 패자의 점수가 하한선 미만인 경우
+        elif new_loser_score < loser_min and point_change > 0:
+            # 하락폭만 극단적으로 감소 (0.1배)
+            point_change *= 0.1
+            
+        # 최종 점수 업데이트
+        winner.school_score = float(winner.school_score) + point_change
+        loser.school_score = float(loser.school_score) - point_change
+
+    # 티어에 속하지 않은 대학들의 경우 기존 방식 사용
+    else:
+        # 순위 차이와 점수 차이 계산
+        rank_diff = winner.rank - loser.rank
+        score_diff = float(winner.school_score) - float(loser.school_score)
+        
+        # 순위와 점수 차이를 고려한 k_factor 조정
+        if rank_diff > 0:  # 낮은 순위가 이겼을 때
+            score_weight = abs(score_diff) / 20
+            adjusted_k = k_factor * (1.0 + rank_diff/20 + score_weight)
+        elif rank_diff < 0:  # 높은 순위가 이겼을 때
+            score_weight = abs(score_diff) / 20
+            adjusted_k = k_factor * (1.0 / (1 + abs(rank_diff)/10 + score_weight))
+        else:  # 같은 순위끼리 겨룰 때
+            score_weight = abs(score_diff) / 20
+            adjusted_k = k_factor * (1.0 + score_weight)
+        
+        # 최대 k_factor 제한
+        adjusted_k = min(adjusted_k, k_factor * 2)
+        
+        # ELO 계산
+        expected_winner = 1 / (1 + 10**((float(loser.school_score) - float(winner.school_score)) / 400))
+        point_change = adjusted_k * (1 - expected_winner)
+
+        # 점수 업데이트
+        loser.school_score = float(loser.school_score) - point_change
+        if winner.school_score > 1000:
+            point_change * 0.1;
+        
+        winner.school_score = float(winner.school_score) + point_change
+
     winner.save()
     loser.save()
 
@@ -180,28 +270,28 @@ def vote_page(request):
         update_school_scores(winner, loser)
         return redirect('vote:vote_page')
     
-    #순위를 포함한 학교 목록 가져오기
-    schools_with_rank = School.objects.annotate(
+    # 모든 학교 가져오기
+    schools = School.objects.annotate(
         rank=Window(
             expression=Rank(),
             order_by=F('school_score').desc()
         )
-    )
+    ).order_by('rank')
     
-    # 랜덤으로 첫 번째 학교 선택
-    school1 = random.choice(schools_with_rank)
+    # 기준이 될 학교 랜덤 선택
+    base_school = random.choice(schools)
     
-    # school1의 순위 기준으로 비교 가능한 학교들 필터링
-    nearby_schools = get_comparable_schools(school1, schools_with_rank)
+    # 비교 가능한 학교들 가져오기
+    comparable_schools = get_comparable_schools(base_school, schools)
     
-    if len(nearby_schools) > 0:
-        school2 = random.choice(nearby_schools)
+    # 비교할 학교 랜덤 선택
+    if comparable_schools:
+        other_school = random.choice(comparable_schools)
     else:
-        # 근처에 학교가 없으면 다른 학교 랜덤 선택
-        school2 = random.choice(schools_with_rank.exclude(id=school1.id))
+        other_school = random.choice([s for s in schools if s.id != base_school.id])
     
     context = {
-        'school1': school1,
-        'school2': school2,
+        'school1': base_school,
+        'school2': other_school,
     }
-    return render(request, 'vote/vote_page.html', context)  
+    return render(request, 'vote/vote_page.html', context)
