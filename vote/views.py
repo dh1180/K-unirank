@@ -113,15 +113,30 @@ def update_school_scores(winner, loser, k_factor=30):
             "min_score": 900,
             "max_score": 1000
         },
+        "tier1.5": {
+            "schools": ["한국예술종합학교"],
+            "min_score": 950,
+            "max_score": 850
+        },
         "tier2": {
             "schools": ["서강대학교", "성균관대학교", "한양대학교"],
             "min_score": 800,
             "max_score": 899
         },
+        "tier2.5": {
+            "schools": ["울산과학기술원", "광주과학기술원", "대구경북과학기술원", "서울교육대학교"],
+            "min_score": 850,
+            "max_score": 750
+        },
         "tier3": {
-            "schools": ["중앙대학교", "경희대학교", "한국외국어대학교", "서울시립대학교"],
+            "schools": ["중앙대학교", "경희대학교", "한국외국어대학교", "서울시립대학교", "이화여자대학교"],
             "min_score": 700,
             "max_score": 799
+        },
+        "tier3.5": {
+            "schools": ["한국에너지공과대학교", "농협대학교"],
+            "min_score": 750,
+            "max_score": 650
         },
         "tier4": {
             "schools": ["건국대학교", "동국대학교", "홍익대학교"],
@@ -142,7 +157,19 @@ def update_school_scores(winner, loser, k_factor=30):
             "schools": ["한성대학교", "서경대학교", "삼육대학교"],
             "min_score": 300,
             "max_score": 399
-        }
+        },
+        
+        "tier4~6": {
+            "schools": ["부산대학교", "경북대학교", "한국항공대학교", "서울과학기술대학교", "한양대학교 ERICA캠퍼스",
+                        "아주대학교", "인하대학교"],
+            "min_score": 400,
+            "max_score": 699
+        },
+        "tier5~7": {
+            "schools": ["인천대학교", "가천대학교", "경기대학교", "전남대학교", "충남대학교"],
+            "min_score": 300,
+            "max_score": 599
+        },
     }
 
     def find_tier_info(school_name):
