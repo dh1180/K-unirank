@@ -181,77 +181,76 @@ def update_school_scores(winner, loser, k_factor=30):
     winner_info = find_tier_info(winner.school_name)
     loser_info = find_tier_info(loser.school_name)
     
-    # 티어에 속한 대학들의 경우
+    # ELO 계산 (공통)
+    expected_winner = 1 / (1 + 10**((float(loser.school_score) - float(winner.school_score)) / 400))
+    point_change = k_factor * (1 - expected_winner)
+    
+    # 기본 점수 변동 제한
+    max_change = 15.0
+    point_change = max(min(point_change, max_change), -max_change)
+    
+    # 새로운 점수 계산
+    new_winner_score = float(winner.school_score) + point_change
+    new_loser_score = float(loser.school_score) - point_change
+
+    # 둘 다 티어에 속한 경우
     if winner_info[0] is not None and loser_info[0] is not None:
         winner_tier, winner_min, winner_max = winner_info
         loser_tier, loser_min, loser_max = loser_info
         
-        # ELO 계산
-        expected_winner = 1 / (1 + 10**((float(loser.school_score) - float(winner.school_score)) / 400))
-        point_change = k_factor * (1 - expected_winner)
-        
-        # 기본 점수 변동 제한
-        max_change = 15.0
-        point_change = max(min(point_change, max_change), -max_change)
-        
-        # 새로운 점수 계산
-        new_winner_score = float(winner.school_score) + point_change
-        new_loser_score = float(loser.school_score) - point_change
-        
-        # 승자의 점수가 상한선을 넘는 경우
-        if new_winner_score > winner_max and point_change > 0:
-            # 상승폭만 극단적으로 감소 (0.1배)
+        # Case 1: 승자가 상한선 넘고 패자가 하한선 미만으로 갈 때
+        if new_winner_score > winner_max and new_loser_score < loser_min and point_change > 0:
             point_change *= 0.1
+            loser.school_score = float(loser.school_score) - point_change
+            winner.school_score = float(winner.school_score) + point_change
             
-        # 승자의 점수가 하한선 미만인 경우
-        elif new_winner_score < winner_min and point_change < 0:
-            # 하락폭만 극단적으로 감소 (0.1배)
+        # Case 2: 승자만 상한선을 넘을 때
+        elif new_winner_score > winner_max and point_change > 0:
+            loser.school_score = float(loser.school_score) - point_change
             point_change *= 0.1
+            winner.school_score = float(winner.school_score) + point_change
             
-        # 패자의 점수가 상한선을 넘는 경우
-        if new_loser_score > loser_max and point_change < 0:
-            # 상승폭만 극단적으로 감소 (0.1배)
-            point_change *= 0.1
-            
-        # 패자의 점수가 하한선 미만인 경우
+        # Case 3: 패자만 하한선 미만으로 갈 때
         elif new_loser_score < loser_min and point_change > 0:
-            # 하락폭만 극단적으로 감소 (0.1배)
+            winner.school_score = float(winner.school_score) + point_change
             point_change *= 0.1
+            loser.school_score = float(loser.school_score) - point_change
             
-        # 최종 점수 업데이트
-        winner.school_score = float(winner.school_score) + point_change
-        loser.school_score = float(loser.school_score) - point_change
+        # Case 4: 그 외의 경우 (정상적인 범위 내)
+        else:
+            winner.school_score = float(winner.school_score) + point_change
+            loser.school_score = float(loser.school_score) - point_change
 
-    # 티어에 속하지 않은 대학들의 경우 기존 방식 사용
+    # 승자만 티어에 속한 경우
+    elif winner_info[0] is not None:
+        winner_tier, winner_min, winner_max = winner_info
+        
+        # 승자의 점수가 상한선을 넘으려 할 때 (상승폭만 제한)
+        if new_winner_score > winner_max and point_change > 0:
+            loser.school_score = float(loser.school_score) - point_change
+            point_change *= 0.1
+            winner.school_score = float(winner.school_score) + point_change
+        else:
+            winner.school_score = float(winner.school_score) + point_change
+            loser.school_score = float(loser.school_score) - point_change
+
+    # 패자만 티어에 속한 경우
+    elif loser_info[0] is not None:
+        loser_tier, loser_min, loser_max = loser_info
+        
+        # 패자의 점수가 하한선 미만으로 갈 때 (하락폭만 제한)
+        if new_loser_score < loser_min and point_change > 0:
+            winner.school_score = float(winner.school_score) + point_change
+            point_change *= 0.1
+            loser.school_score = float(loser.school_score) - point_change
+        else:
+            winner.school_score = float(winner.school_score) + point_change
+            loser.school_score = float(loser.school_score) - point_change
+
+    # 둘 다 티어에 속하지 않은 경우
     else:
-        # 순위 차이와 점수 차이 계산
-        rank_diff = winner.rank - loser.rank
-        score_diff = float(winner.school_score) - float(loser.school_score)
-        
-        # 순위와 점수 차이를 고려한 k_factor 조정
-        if rank_diff > 0:  # 낮은 순위가 이겼을 때
-            score_weight = abs(score_diff) / 20
-            adjusted_k = k_factor * (1.0 + rank_diff/20 + score_weight)
-        elif rank_diff < 0:  # 높은 순위가 이겼을 때
-            score_weight = abs(score_diff) / 20
-            adjusted_k = k_factor * (1.0 / (1 + abs(rank_diff)/10 + score_weight))
-        else:  # 같은 순위끼리 겨룰 때
-            score_weight = abs(score_diff) / 20
-            adjusted_k = k_factor * (1.0 + score_weight)
-        
-        # 최대 k_factor 제한
-        adjusted_k = min(adjusted_k, k_factor * 2)
-        
-        # ELO 계산
-        expected_winner = 1 / (1 + 10**((float(loser.school_score) - float(winner.school_score)) / 400))
-        point_change = adjusted_k * (1 - expected_winner)
-
-        # 점수 업데이트
-        loser.school_score = float(loser.school_score) - point_change
-        if winner.school_score > 1000:
-            point_change * 0.1;
-        
         winner.school_score = float(winner.school_score) + point_change
+        loser.school_score = float(loser.school_score) - point_change
 
     winner.save()
     loser.save()

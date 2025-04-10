@@ -11,6 +11,10 @@
     </script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3862816878614020"
+    crossorigin="anonymous"></script>
+
     <title>K-unirank : 2024 - 2025 대학교 순위 투표 사이트</title>
 
     <meta name="description" content="2024, 2025년 최신 대학 순위가 궁금하신가요? 내 대학교는 전국에서 몇 등일까? K-unirank에서 지금 바로 확인해보세요! 당신의 대학 순위를 간편하게 알아보세요">
@@ -91,6 +95,17 @@
                 padding: 1rem;
             }
         }
+
+        @supports (-webkit-touch-callout: none) {
+        /* iOS Safari에서만 적용되는 스타일 */
+            #kakao-ad {
+                display: none;
+                height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden;
+                }
+        }
     </style>
 </head>
 <body>
@@ -126,7 +141,7 @@
             </div>
         </div>
     </nav>
-    <ins class="kakao_ad_area" style="display: inline-block; min-width: 160px; min-height: 600px;"
+    <ins class="kakao_ad_area" style="display: none;"
     data-ad-unit = "DAN-4r2w24dDA1owYfUn"
     data-ad-width = "320"
     data-ad-height = "50"></ins>
