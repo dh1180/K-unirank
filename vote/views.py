@@ -321,3 +321,6 @@ def vote_page(request):
         'school2': other_school,
     }
     return render(request, 'vote/vote_page.html', context)
+
+def donation(request):
+    return render(request, 'vote/donation.html')
