@@ -10,5 +10,9 @@ class School(models.Model):
     susi_school_pdf = models.FileField(upload_to="susi_school_pdf", null=True)
     jungsi_school_pdf = models.FileField(upload_to="jungsi_school_pdf", null=True)
 
+    win_tournament_count = models.BigIntegerField(default=0)
+    win_match_count = models.BigIntegerField(default=0)
+    match_count = models.BigIntegerField(default=0)
+
     def __str__(self):
         return self.school_name

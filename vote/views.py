@@ -105,7 +105,7 @@ def jungsi_pdf_upload(request):
     return render(request, 'vote/jungsi_pdf_upload.html', context)  
 
 
-def update_school_scores(winner, loser, k_factor=30):
+def update_school_scores(winner, loser, k_factor=15):
     # 구간별 대학 리스트와 점수 범위 설정
     tiers = {
         "tier1": {

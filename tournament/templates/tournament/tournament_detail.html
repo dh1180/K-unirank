@@ -1,0 +1,165 @@
+{% extends 'vote/base.html' %}
+
+{% block content %}
+
+{% if not is_tournament_completed %}
+<h2 style="text-align: center; align-items: start; font-weight: bold; background-color: aliceblue;">
+    대학순위 월드컵 {{ round_of }}강 {{ current_match_number }}/{{ total_matches }}
+</h2>
+{% endif %}
+
+<div class="container">
+    {% if is_tournament_completed %}
+    <div id="winner-section" style="text-align: center; align-items: start; position: relative;">
+        <h3 class="winner-title">🏆 우승: {{ tournament.winner.school_name }} 🏆</h3>
+        <img src="{{ tournament.winner.school_image.url }}" alt="{{ tournament.winner.school_name }}"
+             class="winner-effect">
+
+        <canvas id="confetti-canvas" style="position: fixed; pointer-events: none; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999;"></canvas>
+    </div>
+
+    <br><br>
+    <div style="text-align: end;">
+        <a href="{% url 'tournament:result' %}" class="btn btn-outline-secondary">결과 보기!</a>
+    </div>
+    {% endif %}
+
+    {% if current_matches %}
+    <div class="schools-container mt-5">
+        <!-- school1 -->
+        <form method="POST" action="{% url 'tournament:tournament_match_result' tournament_id=tournament.id match_id=current_matches.0.id %}" class="school-form">
+            {% csrf_token %}
+            <input type="hidden" name="winner" value="{{ current_matches.0.school1.id }}">
+            <div onclick="this.closest('form').submit();">
+                <div class="school-image-container">
+                    {% if current_matches.0.school1.school_image.url %}
+                        <img src="{{ current_matches.0.school1.school_image.url }}" alt="{{ current_matches.0.school1.school_name }}" class="school-image">
+                    {% else %}
+                        <div class="no-image">이미지 없음</div>
+                    {% endif %}
+                </div>
+                <div class="school-name">{{ current_matches.0.school1.school_name }}</div>
+            </div>
+        </form>
+
+        <div class="fw-bold">VS</div>
+
+        <!-- school2 -->
+        <form method="POST" action="{% url 'tournament:tournament_match_result' tournament_id=tournament.id match_id=current_matches.0.id %}" class="school-form">
+            {% csrf_token %}
+            <input type="hidden" name="winner" value="{{ current_matches.0.school2.id }}">
+            <div onclick="this.closest('form').submit();">
+                <div class="school-image-container">
+                    {% if current_matches.0.school2.school_image.url %}
+                        <img src="{{ current_matches.0.school2.school_image.url }}" alt="{{ current_matches.0.school2.school_name }}" class="school-image">
+                    {% else %}
+                        <div class="no-image">이미지 없음</div>
+                    {% endif %}
+                </div>
+                <div class="school-name">{{ current_matches.0.school2.school_name }}</div>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+     .schools-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 40px;
+    }
+    
+    .school-image-container {
+        background: white;
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: transform 0.2s ease;
+        width: 280px;
+    }
+    
+    .school-image-container:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    
+    .school-image {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 3/2;
+        object-fit: contain;
+    }
+    
+    .school-name {
+        margin-top: 10px;
+        font-weight: bold;
+        font-size: 16px;
+        text-align: center;
+    }
+    .winner-title {
+        font-weight: bold;
+        font-size: 2.2rem;
+        margin-top: 20px;
+        animation: pop 1.3s ease-out;
+    }
+    
+    .winner-effect {
+        width: 25vw;
+        animation: pulse 1.5s infinite ease-in-out;
+        margin-top: 20px;
+        border-radius: 50%;
+    }
+
+    @keyframes pop {
+        0% { transform: scale(0.3); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        50% { box-shadow: 0 0 30px rgba(255, 215, 0, 1); }
+    }
+
+    @media (max-width: 768px) {
+        .schools-container {
+            flex-direction: column;
+            gap: 20px;
+        }
+    
+        .school-image-container {
+            width: 200px;
+            padding: 8px;
+        }
+        
+        .school-name {
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .winner-title {
+            font-weight: bold;
+            font-size: medium;
+            margin-top: 20px;
+            animation: pop 1.3s ease-out;
+        }
+    }
+</style>
+
+<!-- Optional: confetti.js 효과 추가 -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+{% if is_tournament_completed %}
+<script>
+window.addEventListener('load', () => {
+    // 우승자 등장 시 효과
+    confetti({
+        particleCount: 150,
+        spread: 90,
+        origin: { y: 0.6 }
+    });
+});
+</script>
+{% endif %}
+
+{% endblock %}

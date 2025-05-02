@@ -31,5 +31,73 @@
             </p>
         </div>
     </div>
+    <h1 class="mt-5" style="font-weight: bold;">2025년 4월 후원자 목록</h1>
+    <h3 class="mt-1 mb-3" style="font-weight: bold;">✔ 후원해주신 모든 분들 감사합니다</h3>
+    <table class="school-table">
+        <thead>
+            <tr class="item">
+                <th>순위</th>
+                <th>후원자</th>
+                <th>후원 금액</th>
+            </tr>
+        </thead>
+        <tbody id="schools-container">
+            <tr>
+                <td>1</td>
+                <td>이승준</td>
+                <td>4,000원</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
+
+<style>
+    .title-heading {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* 기본 테이블 스타일 */
+    .table-wrapper {
+        overflow-x: auto;
+    }
+    .school-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.95rem;
+    }
+    .school-table th,
+    .school-table td {
+        border-top: 1px solid #ccc;
+        padding: 10px 8px;
+        text-align: center;
+    }
+    .school-table thead {
+        background-color: #f0f0f0;
+    }
+    .school-logo {
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+    }
+    
+    /* 모바일 대응 */
+    @media (max-width: 768px) {
+        .item {
+            font-size: x-small;
+        }
+        .title-heading {
+            font-size: 1.3rem;
+            margin: 1rem 0;
+        }
+        .school-table {
+            font-size: 0.85rem;
+        }
+        .school-logo {
+            width: 40px;
+            height: 40px;
+        }
+    }
+</style>
 {% endblock %}
