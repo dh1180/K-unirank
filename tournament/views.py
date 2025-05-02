@@ -69,7 +69,7 @@ def create_tournament(request):
         except ValueError as e:
             # 에러 처리
             pass
-    return render(request, 'tournament/create_tournament.html')
+    return render(request, 'vote/school_list.html')
 
 def tournament_detail(request, tournament_id):
     tournament = get_object_or_404(Tournament, id=tournament_id)
