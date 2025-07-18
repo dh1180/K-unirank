@@ -5,6 +5,7 @@ from . import views
 app_name = "vote"
 
 urlpatterns = [
-    path('school_list', views.school_list, name='school_list'),
-    path('', views.vote_page, name='vote_page'),
+    path('vote', views.vote_page, name='vote_page'),
+    path('', views.school_list, name='school_list'),
+    path('school_list', views.redirect_school_list),  # 기존 /school_list는 /로 리다이렉트
 ]
