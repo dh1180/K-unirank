@@ -1,12 +1,11 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import School
-import requests
+from django.shortcuts import render, redirect
+from .models import School, PreviousRank
+import requests, random
 from django.db.models import F, Window
-from django.db.models.functions import Rank, DenseRank
-import random
+from django.db.models.functions import Rank
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from django.db.models import Count, Case, When, Value, IntegerField
+from datetime import date
 
 # Create your views here.
 
@@ -15,94 +14,62 @@ url = "https://www.career.go.kr/cnet/openapi/getOpenApi?apiKey={}&svcType=api&sv
 response = requests.get(url)
 data = response.json()
 
+def save_today_ranks():
+    """오늘 순위를 DB에 스냅샷 저장 (없으면 새로 생성)"""
+    schools = School.objects.annotate(
+        rank=Window(expression=Rank(), order_by=F('school_score').desc())
+    )
+    today = date.today()
+
+    for s in schools:
+        PreviousRank.objects.update_or_create(
+            school=s,
+            date=today,
+            defaults={'rank': s.rank}
+        )
 
 def school_list(request):
-    # DenseRank를 사용하여 동점자 처리
+    # 현재 순위 계산
     schools = School.objects.annotate(
-        rank=Window(
-            expression=Rank(),
-            order_by=F('school_score').desc()
-        )
+        rank=Window(expression=Rank(), order_by=F('school_score').desc())
     ).order_by('rank')
-    
+
+    today = date.today()
+    yesterday_snapshot = {
+        pr.school_id: pr.rank
+        for pr in PreviousRank.objects.filter(date=today)
+    }
+
+    # rank_diff, rank_diff_abs 계산
+    for s in schools:
+        old_rank = yesterday_snapshot.get(s.id, s.rank)
+        s.rank_diff = old_rank - s.rank  # 양수=상승, 음수=하락
+        s.rank_diff_abs = abs(s.rank_diff)  # 절대값 (템플릿 편의용)
+
+    # Ajax (무한스크롤)
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         page = int(request.GET.get('page', 1))
         paginator = Paginator(schools, 50)
-        
         try:
             schools_page = paginator.page(page)
             schools_data = [{
                 'id': school.id,
                 'name': school.school_name,
-                'score': school.school_score,
-                'rank': school.rank,  # 계산된 순위 사용
+                'score': float(school.school_score),
+                'rank': school.rank,
+                'rank_diff': school.rank_diff,
+                'rank_diff_abs': school.rank_diff_abs,
                 'image': school.school_image.url if school.school_image else None,
             } for school in schools_page]
-            
-            return JsonResponse({
-                'schools': schools_data,
-                'has_next': schools_page.has_next()
-            })
+            return JsonResponse({'schools': schools_data, 'has_next': schools_page.has_next()})
         except:
             return JsonResponse({'has_next': False, 'schools': []})
-    
-    # 초기 로드: 상위 50개만
+
     initial_schools = schools[:50]
     return render(request, 'vote/school_list.html', {'schools': initial_schools})
 
-
-def upload(request):
-    schools = School.objects.all().order_by('-school_score')
-    if request.method == 'POST':
-        school = request.POST['school']
-        selected_school = School.objects.filter(school_name=school).first()
-        if "image" in request.FILES:
-            selected_school.school_image = request.FILES["image"]
-            selected_school.save()
-
-        return redirect('vote:upload')
-
-    context = {
-        'schools': schools,
-        'is_superuser': request.user.is_superuser
-    }
-    return render(request, 'vote/upload.html', context)
-
-
-def susi_pdf_upload(request):
-    schools = School.objects.all().order_by('-school_score')
-    if request.method == 'POST':
-        school = request.POST['school']
-        selected_school = School.objects.filter(school_name=school).first()
-
-        selected_school.susi_school_pdf = request.FILES["susi"]
-        selected_school.save()
-
-        return redirect('vote:susi_pdf_upload')
-
-    context = {
-        'schools': schools,
-        'is_superuser': request.user.is_superuser
-    }
-    return render(request, 'vote/susi_pdf_upload.html', context)  
-
-
-def jungsi_pdf_upload(request):
-    schools = School.objects.all().order_by('-school_score')
-    if request.method == 'POST':
-        school = request.POST['school']
-        selected_school = School.objects.filter(school_name=school).first()
-
-        selected_school.jungsi_school_pdf = request.FILES["jungsi"]
-        selected_school.save()
-
-        return redirect('vote:jungsi_pdf_upload')
-
-    context = {
-        'schools': schools,
-        'is_superuser': request.user.is_superuser
-    }
-    return render(request, 'vote/jungsi_pdf_upload.html', context)  
+# 서버 시작 시 오늘 스냅샷 저장
+save_today_ranks()
 
 
 def update_school_scores(winner, loser, k_factor=15):
@@ -321,6 +288,3 @@ def vote_page(request):
         'school2': other_school,
     }
     return render(request, 'vote/vote_page.html', context)
-
-def donation(request):
-    return render(request, 'vote/donation.html')
