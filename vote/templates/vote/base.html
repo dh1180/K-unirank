@@ -45,6 +45,14 @@
         .navbar {
             background-color: #fff;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding-top: 0;     /* 위 패딩 없애기 */
+            padding-bottom: 0;  /* 아래 패딩 없애기 */
+            min-height: 50px;   /* 네비게이션 최소 높이 */
+        }
+
+        .navbar .container {
+            padding-top: 0;     /* 컨테이너도 불필요한 여백 제거 */
+            padding-bottom: 0;
         }
 
         .navbar-brand {
@@ -57,7 +65,8 @@
             font-weight: 500;
             color: var(--text-color) !important;
             transition: color 0.3s ease;
-            padding: 0.5rem 1rem;
+            padding-top: 0.2rem;   /* 메뉴 버튼 패딩만 살짝 남김 */
+            padding-bottom: 0.2rem;
             border-radius: 20px;
         }
 
@@ -146,30 +155,15 @@
     </style>
 
     <!-- 모바일 광고 -->
-    <div class="d-block d-md-none">
-        <ins class="kakao_ad_area" style="display:inline-block; min-width: 160px; min-height: 600px;"
-            data-ad-unit = "DAN-4r2w24dDA1owYfUn"
-            data-ad-width = "320"
-            data-ad-height = "50">
-        </ins>
-    </div>
+    <ins class="kakao_ad_area" style="display:none;"
+    data-ad-unit = "DAN-4r2w24dDA1owYfUn"
+    data-ad-width = "320"
+    data-ad-height = "50"></ins>
 
     <div class="container main-container">
         <div class="content-wrapper">
             {% block content %}{% endblock %}
         </div>
-    </div>
-
-    <!-- PC 광고 -->
-    <div class="d-none d-md-block" style="position: fixed; 
-                right: 20px; 
-                bottom: 20px; 
-                max-width: 160px;">
-        <ins class="kakao_ad_area" style="display:none;"
-            data-ad-unit = "DAN-H3nZaPori57CstUh"
-            data-ad-width = "160"
-            data-ad-height = "600">
-        </ins>
     </div>
 
     <!-- 광고 스크립트는 한 번만 포함 -->
@@ -199,7 +193,6 @@
                                 <option value="16">16강</option>
                                 <option value="8">8강</option>
                                 <option value="4">4강</option>
-                                <option value="0">무한</option>
                             </select>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">토너먼트 시작</button>

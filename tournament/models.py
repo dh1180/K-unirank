@@ -8,7 +8,7 @@ class Tournament(models.Model):
     total_rounds = models.IntegerField()  # 4, 8, 16, 32, 64, 128, 256
     current_round = models.IntegerField(default=1)
     winner = models.ForeignKey('vote.School', on_delete=models.CASCADE, null=True, blank=True, related_name='won_tournament')
-
+    
     def __str__(self):
         return self.name
 

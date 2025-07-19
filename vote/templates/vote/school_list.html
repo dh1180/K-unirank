@@ -10,7 +10,7 @@
             data-school-name="{{ school.school_name }}"
             data-school-image="{% if school.school_image %}{{ school.school_image.url }}{% endif %}"
             data-school-rank="{{ school.rank }}"
-            data-school-score="{{ school.school_score }}"
+            data-school-score="{{ school.rating|floatformat:2 }}"
             data-school-rank-diff="{{ school.rank_diff|default:0 }}">
             
             <!-- 왼쪽 랭킹 포인트 바 -->
@@ -21,7 +21,7 @@
                 <div class="rank-number">{{ school.rank }}</div>
                 <div class="rank-diff 
                     {% if school.rank_diff > 0 %}diff-up{% elif school.rank_diff < 0 %}diff-down{% else %}diff-same{% endif %}">
-                    {% if school.rank_diff > 0 %}
+                    {% if    school.rank_diff > 0 %}
                         ▲{{ school.rank_diff_abs }}
                     {% elif school.rank_diff < 0 %}
                         ▼{{ school.rank_diff_abs }}
@@ -29,6 +29,8 @@
                         -
                     {% endif %}
                 </div>
+                
+                
             </div>
 
             <!-- 학교 로고 및 이름 -->
@@ -39,8 +41,10 @@
                     <div class="no-image">로고 없음</div>
                 {% endif %}
                 <div class="school-text">
-                    <h3 class="school-name">{{ school.school_name }}</h3>
-                    <p class="school-score">{{ school.school_score }} 점</p>
+                    <h3 class="school-name">{{ school.school_name }}
+                        <span class="tier-badge tier-{{ school.tier }}">{{ school.tier }}</span>
+                    </h3>
+                    <p class="school-score">{{ school.rating|floatformat:2 }} 점</p>
                 </div>
             </div>
         </div>
@@ -49,7 +53,7 @@
     <div id="loading" style="display: none;">로딩중...</div>
 </div>
 
-<!-- Modal -->
+<!-- 모달 -->
 <div class="modal fade" id="schoolModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-rank-board">
@@ -92,7 +96,7 @@
                 else if (school.rank === 2) card.classList.add('rank-silver');
                 else if (school.rank === 3) card.classList.add('rank-bronze');
     
-                // 모달용 데이터 속성
+                // 모달용 데이터
                 card.setAttribute('data-bs-toggle', 'modal');
                 card.setAttribute('data-bs-target', '#schoolModal');
                 card.setAttribute('data-school-name', school.name);
@@ -101,7 +105,7 @@
                 card.setAttribute('data-school-score', school.score);
                 card.setAttribute('data-school-rank-diff', school.rank_diff);
     
-                // 순위 변화 아이콘
+                // 순위 변동 기호
                 let changeSymbol = '-';
                 if (school.rank_diff > 0) changeSymbol = `▲${school.rank_diff_abs}`;
                 else if (school.rank_diff < 0) changeSymbol = `▼${school.rank_diff_abs}`;
@@ -119,8 +123,10 @@
                             ? `<img src="${school.image}" alt="${school.name}" class="school-logo">`
                             : '<div class="no-image">로고 없음</div>'}
                         <div class="school-text">
-                            <h3 class="school-name">${school.name}</h3>
-                            <p class="school-score">${school.score} 점</p>
+                            <h3 class="school-name">${school.name}
+                                <span class="tier-badge tier-${ school.tier }">${ school.tier }</span>
+                            </h3>
+                            <p class="school-score">${parseFloat(school.score).toFixed(2)} 점</p>
                         </div>
                     </div>
                 `;
@@ -164,142 +170,161 @@
             rankChangeElem.text('변화 없음').removeClass().addClass('rank-change rank-same');
         }
     });
-    </script>
-    
+</script>
 
 <style>
-/* 전체 컨테이너 */
-.school-list-container {
-    padding: 20px;
-    max-width: 1000px;
-    margin: 0 auto;
-}
+    /* 전체 컨테이너 */
+    .school-list-container {
+        padding: 20px;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    
+    /* 카드 */
+    .school-card {
+        position: relative;
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-bottom: 15px;
+        padding: 15px 20px;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .school-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+    }
+    
+    /* 랭킹별 포인트 스트립 (왼쪽 컬러) */
+    .rank-strip {
+        width: 6px;
+        height: 100%;
+        border-radius: 6px;
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+    .rank-gold .rank-strip { background: linear-gradient(180deg,#FFD700,#FFC300); }
+    .rank-silver .rank-strip { background: linear-gradient(180deg,#C0C0C0,#A9A9A9); }
+    .rank-bronze .rank-strip { background: linear-gradient(180deg,#CD7F32,#B87333); }
+    .school-card:not(.rank-gold):not(.rank-silver):not(.rank-bronze) .rank-strip {
+        background: #4a90e2;
+    }
+    
+    /* 순위 숫자 */
+    .rank-section {
+        width: 80px;
+        text-align: center;
+    }
+    .rank-number {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #333;
+    }
+    .rank-diff {
+        font-size: 0.9rem;
+        font-weight: bold;
+    }
+    .diff-up { color: #2ecc71; }
+    .diff-down { color: #e74c3c; }
+    .diff-same { color: #aaa; }
+    
+    /* 학교 메인 */
+    .school-main {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-grow: 1;
+    }
+    .school-logo {
+        width: 70px;
+        height: 70px;
+        object-fit: contain;
+    }
+    .no-image {
+        width: 70px;
+        height: 70px;
+        background: #eee;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-size: 12px;
+        color: #666;
+    }
+    .school-text h3 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+    .school-score {
+        margin: 5px 0 0 0;
+        font-size: 0.95rem;
+        color: #555;
+    }
+    
+    /* 모달 */
+    .modal-rank-board {
+        border-radius: 14px;
+        padding: 10px;
+        background: #fafafa;
+    }
+    .modal-school-logo {
+        max-width: 130px;
+        max-height: 130px;
+        margin: 15px auto;
+    }
+    .modal-rank-text {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #4a90e2;
+    }
+    .modal-score-text {
+        font-size: 1.2rem;
+        color: #444;
+        margin-bottom: 10px;
+    }
+    .rank-diff {
+        font-size: 1rem;
+        margin-top: 5px;
+    }
+    
+    /* 로딩 */
+    #loading {
+        text-align: center;
+        padding: 20px;
+        color: #888;
+    }
 
-/* 카드 */
-.school-card {
-    position: relative;
-    display: flex;
-    align-items: center;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    margin-bottom: 15px;
-    padding: 15px 20px;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.school-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 18px rgba(0,0,0,0.1);
-}
+    /* 티어 뱃지 */
+    .tier-badge {
+        display: inline-block;
+        font-size: 0.8rem;
+        font-weight: bold;
+        padding: 2px 8px;
+        border-radius: 6px;
+        margin-left: 8px;
+        color: #fff;
+    }
 
-/* 랭킹별 포인트 스트립 (왼쪽 컬러) */
-.rank-strip {
-    width: 6px;
-    height: 100%;
-    border-radius: 6px;
-    position: absolute;
-    left: 0;
-    top: 0;
-}
-.rank-gold .rank-strip { background: linear-gradient(180deg,#FFD700,#FFC300); }
-.rank-silver .rank-strip { background: linear-gradient(180deg,#C0C0C0,#A9A9A9); }
-.rank-bronze .rank-strip { background: linear-gradient(180deg,#CD7F32,#B87333); }
-.school-card:not(.rank-gold):not(.rank-silver):not(.rank-bronze) .rank-strip {
-    background: #4a90e2;
-}
+    /* 티어별 색상 (토너먼트와 동일) */
+    .tier-S { background: #d9534f; }  /* 빨강 (최상위) */
+    .tier-A { background: #f0ad4e; }  /* 주황 (상위) */
+    .tier-B { background: #0275d8; }  /* 파랑 (중상위) */
+    .tier-C { background: #5cb85c; }  /* 초록 (중위) */
+    .tier-D { background: #999; }     /* 회색 (중하위) */
+    .tier-F { background: #444; }     /* 진회색 (하위권) */
 
-/* 순위 숫자 */
-.rank-section {
-    width: 80px;
-    text-align: center;
-}
-.rank-number {
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #333;
-}
-.rank-diff {
-    font-size: 0.9rem;
-    font-weight: bold;
-}
-.diff-up { color: #2ecc71; }
-.diff-down { color: #e74c3c; }
-.diff-same { color: #aaa; }
-
-/* 학교 메인 */
-.school-main {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-grow: 1;
-}
-.school-logo {
-    width: 70px;
-    height: 70px;
-    object-fit: contain;
-}
-.no-image {
-    width: 70px;
-    height: 70px;
-    background: #eee;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    font-size: 12px;
-    color: #666;
-}
-.school-text h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    font-weight: bold;
-}
-.school-score {
-    margin: 5px 0 0 0;
-    font-size: 0.95rem;
-    color: #555;
-}
-
-/* 모달 */
-.modal-rank-board {
-    border-radius: 14px;
-    padding: 10px;
-    background: #fafafa;
-}
-.modal-school-logo {
-    max-width: 130px;
-    max-height: 130px;
-    margin: 15px auto;
-}
-.modal-rank-text {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #4a90e2;
-}
-.modal-score-text {
-    font-size: 1.2rem;
-    color: #444;
-    margin-bottom: 10px;
-}
-.rank-diff {
-    font-size: 1rem;
-    margin-top: 5px;
-}
-
-/* 로딩 */
-#loading {
-    text-align: center;
-    padding: 20px;
-    color: #888;
-}
-
-/* 모바일 */
-@media (max-width: 768px) {
-    .rank-section { width: 60px; }
-    .rank-number { font-size: 1.4rem; }
-    .school-logo { width: 50px; height: 50px; }
-    .school-text h3 { font-size: 1rem; }
-}
-</style>
+    
+    /* 모바일 */
+    @media (max-width: 768px) {
+        .rank-section { width: 60px; }
+        .rank-number { font-size: 1.4rem; }
+        .school-logo { width: 50px; height: 50px; }
+        .school-text h3 { font-size: 1rem; }
+    }
+    </style>
 {% endblock %}
