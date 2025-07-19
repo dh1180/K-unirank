@@ -17,7 +17,7 @@
                  alt="{{ tournament.winner.school_name }}" 
                  class="winner-logo">
         </div>
-        <a href="{% url 'tournament:result' %}" class="btn btn-primary btn-lg result-btn">결과 보기!</a>
+        <a href="{% url 'tournament:result' %}" class="btn btn-secondary btn-lg result-btn">결과 보기!</a>
         <canvas id="confetti-canvas"></canvas>
     </div>
 
@@ -205,14 +205,14 @@
 }
 
 /* 버튼 강화 */
-.btn-primary {
+.btn-secondary {
     background: linear-gradient(90deg, #ffcc00, #ffb700);
     border: none;
     color: #333;
     font-weight: bold;
     transition: transform 0.2s ease;
 }
-.btn-primary:hover {
+.btn-secondary:hover {
     transform: scale(1.05);
     background: linear-gradient(90deg, #ffd633, #ffcc00);
 }
