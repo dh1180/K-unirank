@@ -70,9 +70,9 @@ def school_list(request):
                 'name': school.school_name,
                 'score': float(school.rating),
                 'rank': school.rank,
-                'tier': school.tier,  # 티어 정보 포함
-                'rank_diff': s.rank_diff,
-                'rank_diff_abs': s.rank_diff_abs,
+                'rank_diff': school.rank_diff,
+                'rank_diff_abs': school.rank_diff_abs,  # 추가
+                'tier': school.tier,
                 'image': school.school_image.url if school.school_image else None,
             } for school in schools_page]
             return JsonResponse({'schools': schools_data, 'has_next': schools_page.has_next()})

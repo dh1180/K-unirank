@@ -75,7 +75,6 @@
 </div>
 
 <script>
-    // 무한 스크롤
     let page = 2;
     let loading = false;
     let hasMore = true;
@@ -96,16 +95,15 @@
                 else if (school.rank === 2) card.classList.add('rank-silver');
                 else if (school.rank === 3) card.classList.add('rank-bronze');
     
-                // 모달용 데이터
+                // 모달 데이터
                 card.setAttribute('data-bs-toggle', 'modal');
                 card.setAttribute('data-bs-target', '#schoolModal');
                 card.setAttribute('data-school-name', school.name);
                 card.setAttribute('data-school-image', school.image || '');
                 card.setAttribute('data-school-rank', school.rank);
-                card.setAttribute('data-school-score', school.score);
-                card.setAttribute('data-school-rank-diff', school.rank_diff);
+                card.setAttribute('data-school-score', parseFloat(school.score).toFixed(2));  // 소수점 2자리 강제
+                card.setAttribute('data-school-rank-diff', school.rank_diff || 0);
     
-                // 순위 변동 기호
                 let changeSymbol = '-';
                 if (school.rank_diff > 0) changeSymbol = `▲${school.rank_diff_abs}`;
                 else if (school.rank_diff < 0) changeSymbol = `▼${school.rank_diff_abs}`;
@@ -124,7 +122,7 @@
                             : '<div class="no-image">로고 없음</div>'}
                         <div class="school-text">
                             <h3 class="school-name">${school.name}
-                                <span class="tier-badge tier-${ school.tier }">${ school.tier }</span>
+                                <span class="tier-badge tier-${school.tier}">${school.tier}</span>
                             </h3>
                             <p class="school-score">${parseFloat(school.score).toFixed(2)} 점</p>
                         </div>
@@ -147,13 +145,12 @@
         }
     });
     
-    // 모달 데이터 바인딩
     $('#schoolModal').on('show.bs.modal', function (event) {
         const button = $(event.relatedTarget);
         const schoolName = button.data('school-name');
         const schoolImage = button.data('school-image');
         const schoolRank = button.data('school-rank');
-        const schoolScore = button.data('school-score');
+        const schoolScore = parseFloat(button.data('school-score')).toFixed(2);
         const rankDiff = parseInt(button.data('school-rank-diff')) || 0;
     
         $('#modalSchoolImage').attr('src', schoolImage || '{% static "images/default_school_logo.png" %}');
