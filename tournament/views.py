@@ -24,86 +24,119 @@ logging.basicConfig(
 )
 
 # -----------------------------
-# Glicko-2 상수 및 함수
+# Glicko-2 상수 및 함수 (정식 μ–φ 일관)
 # -----------------------------
-Q = math.log(10) / 400
+Q = math.log(10) / 400.0
 TAU = 0.5
-BASE_RATING = 1500
-SCALER = 173.7178
+BASE_RATING = 1500.0
+SCALER = 173.7178  # = 400 / ln(10)
+EPS = 1e-6        # 수치 안정화용
 
-def g(rd):
-    return 1 / math.sqrt(1 + (3 * (Q ** 2) * (rd ** 2)) / (math.pi ** 2))
-
-def expected_score(r, r_op, rd_op):
-    return 1 / (1 + math.exp(-g(rd_op) * (r - r_op)))
-
-def volatility_update(sigma, delta, v, phi, a=None, tau=TAU):
-    if a is None:
-        a = math.log(sigma ** 2)
-    A = a
-    epsilon = 0.000001
-
-    def f(x):
-        exp_x = math.exp(x)
-        num = exp_x * (delta ** 2 - phi ** 2 - v - exp_x)
-        denom = 2 * (phi ** 2 + v + exp_x) ** 2
-        return (num / denom) - ((x - A) / (tau ** 2))
-
-    B = A
-    if delta ** 2 > phi ** 2 + v:
-        B = math.log(delta ** 2 - phi ** 2 - v)
-    k = 0
-    while abs(B - A) > epsilon and k < 50:
-        k += 1
-        fA, fB = f(A), f(B)
-        B = A + ((A - B) * fA) / (fB - fA)
-    return math.exp(A / 2)
-
-def get_round_weight(round_number, total_rounds):
-    max_round = int(math.log2(total_rounds))
-    min_w, max_w = 0.8, 1.5
-    if max_round == 1:
-        return max_w
-    return min_w + (max_w - min_w) * ((round_number - 1) / (max_round - 1))
-
-def glicko_update(player, opponents, results, round_number=1, total_rounds=16):
-    rating, RD, sigma = player
+def to_mu_phi(rating, rd):
+    """레이팅/ RD 를 μ/φ 로 변환"""
     mu = (rating - BASE_RATING) / SCALER
-    phi = RD / SCALER
+    phi = rd / SCALER
+    return mu, phi
 
-    v_inv, delta_sum = 0, 0
+def from_mu_phi(mu, phi):
+    """μ/φ 를 레이팅/RD 로 변환"""
+    rating = BASE_RATING + SCALER * mu
+    rd = SCALER * phi
+    return rating, rd
+
+def g(phi):
+    # Glicko-2 (μ–φ 공간) 정식: q 제거
+    return 1.0 / math.sqrt(1.0 + (3.0 * (phi ** 2)) / (math.pi ** 2))
+
+def expected_score(mu, mu_op, phi_op):
+    x = g(phi_op) * (mu - mu_op)
+    if x > 35: return 1.0
+    if x < -35: return 0.0
+    return 1.0 / (1.0 + math.exp(-x))
+
+def volatility_update(sigma, delta, v, phi, tau=TAU):
+    """
+    표준 논문(시스템 2) 방식의 σ 업데이트 (μ/φ 스페이스).
+    a = ln(σ^2), 이분+뉴턴 혼합 루틴.
+    """
+    a = math.log(sigma ** 2)
+    A = a
+    # f(x) 정의
+    def f(x):
+        ex = math.exp(x)
+        num = ex * (delta ** 2 - phi ** 2 - v - ex)
+        den = 2.0 * (phi ** 2 + v + ex) ** 2
+        return (num / den) - ((x - A) / (tau ** 2))
+
+    # B 초기값 선택
+    if delta ** 2 > (phi ** 2 + v):
+        B = math.log(delta ** 2 - phi ** 2 - v)
+    else:
+        k = 1
+        B = A - k * tau
+        while f(B) < 0:
+            k += 1
+            B = A - k * tau
+
+    # 이분 + 이터레이션
+    fA = f(A)
+    fB = f(B)
+    while abs(B - A) > 1e-6:
+        C = A + (A - B) * fA / (fB - fA)
+        fC = f(C)
+        if fC * fB < 0:
+            A, fA = B, fB
+        else:
+            fA = fA / 2.0
+        B, fB = C, fC
+
+    return math.exp(A / 2.0)
+
+def glicko_update(player, opponents, results):
+    """
+    표준 Glicko-2 단일 기간 업데이트 (μ/φ 일관).
+    - player: (rating, RD, sigma)
+    - opponents: [(op_rating, op_rd), ...]
+    - results: [1/0, ...]  (승=1, 패=0)
+    ※ 라운드 가중치/300점 완화 제거(정확도 향상)
+    """
+    rating, rd, sigma = player
+    mu, phi = to_mu_phi(rating, rd)
+
+    # v^{-1} = Σ g^2 E(1−E)   (여기서 q^2 추가하지 않음 — μ/φ 스페이스)
+    v_inv = 0.0
+    delta_sum = 0.0
     for (op_rating, op_rd), result in zip(opponents, results):
-        mu_op = (op_rating - BASE_RATING) / SCALER
-        phi_op = op_rd / SCALER
+        mu_op, phi_op = to_mu_phi(op_rating, op_rd)
         E = expected_score(mu, mu_op, phi_op)
+        E = min(max(E, EPS), 1.0 - EPS)  # 안정화
         g_phi = g(phi_op)
-        v_inv += (Q ** 2) * (g_phi ** 2) * E * (1 - E)
+        v_inv += (g_phi ** 2) * E * (1.0 - E)
         delta_sum += g_phi * (result - E)
 
-    v = 1 / v_inv
-    delta = v * delta_sum * Q
+    if v_inv <= 0:
+        # 상대가 없거나 수치적 문제 — 변화 없음
+        return rating, rd, sigma
 
-    sigma_prime = volatility_update(sigma, delta, v, phi)
+    v = 1.0 / v_inv
+    # Δ = v * Σ g(φ)(s − E)   (여기서 q 제거 — μ/φ 스페이스)
+    delta = v * delta_sum
+
+    sigma_prime = volatility_update(sigma, delta, v, phi, tau=TAU)
+
+    # 사전 RD 증가(프리-RD)
     phi_star = math.sqrt(phi ** 2 + sigma_prime ** 2)
-    phi_prime = 1 / math.sqrt((1 / phi_star ** 2) + (1 / v))
-    mu_prime = mu + (phi_prime ** 2) * delta_sum * Q
 
-    R_new = BASE_RATING + SCALER * mu_prime
-    RD_new = phi_prime * SCALER
+    # φ' = 1 / sqrt(1/φ_*^2 + 1/v)
+    phi_prime = 1.0 / math.sqrt((1.0 / (phi_star ** 2)) + (1.0 / v))
 
-    weight = get_round_weight(round_number, total_rounds)
-    R_new = rating + (R_new - rating) * weight
+    # μ' = μ + φ'^2 * Σ g(φ)(s − E)
+    mu_prime = mu + (phi_prime ** 2) * delta_sum
 
-    if opponents:
-        avg_op_rating = sum(op_rating for op_rating, _ in opponents) / len(opponents)
-        if abs(rating - avg_op_rating) > 300:
-            R_new = rating + (R_new - rating) * 0.5
-
+    R_new, RD_new = from_mu_phi(mu_prime, phi_prime)
     return R_new, RD_new, sigma_prime
 
 def update_school_scores(winner, loser, match):
-    total_rounds = match.tournament.total_rounds
-
     # 경기 시작 전 로그
     logging.info(
         f"[ROUND {match.round_number}] Match {match.match_number} START - "
@@ -111,18 +144,14 @@ def update_school_scores(winner, loser, match):
         f"Loser({loser.school_name}) Rating={loser.rating:.2f}"
     )
 
-    # Glicko-2 점수 계산
+    # Glicko-2 점수 계산 (정식 μ–φ)
     new_winner_rating, new_winner_rd, new_winner_sigma = glicko_update(
         (winner.rating, winner.rd, winner.volatility),
-        [(loser.rating, loser.rd)], [1],
-        round_number=match.round_number,
-        total_rounds=total_rounds
+        [(loser.rating, loser.rd)], [1]
     )
     new_loser_rating, new_loser_rd, new_loser_sigma = glicko_update(
         (loser.rating, loser.rd, loser.volatility),
-        [(winner.rating, winner.rd)], [0],
-        round_number=match.round_number,
-        total_rounds=total_rounds
+        [(winner.rating, winner.rd)], [0]
     )
 
     # 새 점수 적용
@@ -144,7 +173,7 @@ def update_school_scores(winner, loser, match):
     )
 
 # -----------------------------
-# 티어 기반 랜덤 참가자 선정
+# 티어 기반 랜덤 참가자 선정 (기존 유지)
 # -----------------------------
 def select_random_schools(round_of):
     all_schools = list(School.objects.order_by('-rating'))
@@ -302,9 +331,10 @@ def tournament_match_result(request, tournament_id, match_id):
 def result(request):
     total_tournaments = Tournament.objects.filter(is_completed=True).count() or 1
 
+    # 🔧 final_score = rating (이중 집계 제거)
     schools = School.objects.annotate(
         final_score=ExpressionWrapper(
-            F('rating') + (F('win_tournament_count') * 50) + (F('win_match_count') * 5),
+            F('rating'),
             output_field=FloatField()
         ),
         tournament_win_rate=ExpressionWrapper(
@@ -333,14 +363,14 @@ def result(request):
                 'name': school.school_name,
                 'image': school.school_image.url if school.school_image else None,
                 'rating': float(school.rating),
-                'final_score': float(school.final_score),
+                'final_score': float(school.final_score),  # = rating
                 'tournament_win_rate': float(school.tournament_win_rate),
                 'win_rate': float(school.win_rate),
                 'win_tournament_count': school.win_tournament_count,
                 'win_match_count': school.win_match_count
             } for school in schools_page]
             return JsonResponse({'schools': schools_data, 'has_next': schools_page.has_next()})
-        except:
+        except Exception:
             return JsonResponse({'schools': [], 'has_next': False})
 
     return render(request, 'tournament/result.html', {'schools': ranked_schools[:50]})
