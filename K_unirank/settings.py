@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'mathfilters',
     'vote',
-    'tournament',
 ]
 
 MIDDLEWARE = [

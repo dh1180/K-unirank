@@ -1,23 +1,12 @@
 from django.shortcuts import render, redirect
-from .models import School, PreviousRank
 from django.db.models import F, Window
 from django.db.models.functions import Rank
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from datetime import date
 
-# -----------------------------
-# 티어 계산 함수 (S/A/B/C/D/F)
-# -----------------------------
-def get_tier_label(school, all_schools):
-    sorted_list = sorted(all_schools, key=lambda s: s.rating, reverse=True)
-    idx, total = sorted_list.index(school), len(sorted_list)
-    if idx < int(total * 0.02): return 'S'
-    elif idx < int(total * 0.10): return 'A'
-    elif idx < int(total * 0.30): return 'B'
-    elif idx < int(total * 0.60): return 'C'
-    elif idx < int(total * 0.90): return 'D'
-    return 'F'
+from .views_vs import get_tier_label
+from .models import School, PreviousRank
 
 # -----------------------------
 # 오늘 순위 스냅샷 저장

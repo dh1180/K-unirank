@@ -23,7 +23,6 @@ import os
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('vote.urls')),
-    path('tournament/', include('tournament.urls')),
     re_path(
         r'^ads.txt$',
         serve,

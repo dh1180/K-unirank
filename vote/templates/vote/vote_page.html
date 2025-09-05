@@ -1,102 +1,108 @@
 {% extends 'vote/base.html' %}
 
 {% block content %}
-<div class="vote-container">
-    
-    <br>
+    <div class="vote-container">
+        <h3 class="title">{{ title }}</h3>
 
-    <div class="schools-container">
-        <form method="POST" class="school-form">
-            {% csrf_token %}
-            <input type="hidden" name="other_school" value="{{ school2.id }}">
-            <input type="hidden" name="selected_school" value="{{ school1.id }}">
-            <div onclick="this.closest('form').submit();">
-                <div class="school-image-container">
-                    {% if school1.school_image %}
-                        <img src="{{ school1.school_image.url }}" alt="{{ school1.school_name }}" class="school-image">
-                    {% else %}
-                        <div class="no-image">이미지 없음</div>
-                    {% endif %}
-                </div>
+        {% if error %}
+            <p class="text-danger text-center">{{ error }}</p>
+        {% else %}
+            <div class="schools-container">
+
+                <!-- LEFT -->
+                <form method="POST" class="school-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="other_school" value="{{ school2.id }}">
+                    <input type="hidden" name="selected_school" value="{{ school1.id }}">
+
+                    <div class="school-card" onclick="this.closest('form').submit();">
+                        <div class="school-image-container">
+                            {% if school1.school_image %}
+                                <img src="{{ school1.school_image.url }}" alt="{{ school1.school_name }}" class="school-image">
+                            {% else %}
+                                <div class="no-image">이미지 없음</div>
+                            {% endif %}
+                        </div>
+                        <div class="school-name">{{ school1.school_name }}</div>
+                        <div class="meta">
+                            <span class="rating">레이팅: {{ school1.rating|floatformat:2 }}점</span>
+                            <span class="tier-badge tier-{{ school1_tier }}">{{ school1_tier }}</span>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="fw-bold vs">VS</div>
+
+                <!-- RIGHT -->
+                <form method="POST" class="school-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="other_school" value="{{ school1.id }}">
+                    <input type="hidden" name="selected_school" value="{{ school2.id }}">
+
+                    <div class="school-card" onclick="this.closest('form').submit();">
+                        <div class="school-image-container">
+                            {% if school2.school_image %}
+                                <img src="{{ school2.school_image.url }}" alt="{{ school2.school_name }}" class="school-image">
+                            {% else %}
+                                <div class="no-image">이미지 없음</div>
+                            {% endif %}
+                        </div>
+                        <div class="school-name">{{ school2.school_name }}</div>
+                        <div class="meta">
+                            <span class="rating">레이팅: {{ school2.rating|floatformat:2 }}점</span>
+                            <span class="tier-badge tier-{{ school2_tier }}">{{ school2_tier }}</span>
+                        </div>
+                    </div>
+                </form>
+
             </div>
-            <div class="school-name">{{ school1.school_name }}</div>
-        </form>
-        
-        <div class="fw-bold">VS</div>
-        
-        <form method="POST" class="school-form">
-            {% csrf_token %}
-            <input type="hidden" name="other_school" value="{{ school1.id }}">
-            <input type="hidden" name="selected_school" value="{{ school2.id }}">
-            <div class="school-image-container" onclick="this.closest('form').submit();">
-                {% if school2.school_image %}
-                    <img src="{{ school2.school_image.url }}" alt="{{ school2.school_name }}" class="school-image">
-                {% else %}
-                    <div class="no-image">이미지 없음</div>
-                {% endif %}
-            </div>
-            <div class="school-name">{{ school2.school_name }}</div>
-        </form>
+        {% endif %}
+
+        <br>
+        <a href="{% url 'vote:school_list' %}" class="btn btn-outline-secondary">메인 페이지로 돌아가기</a>
     </div>
-    
-    <br>
-    <br>
-    <a href="{% url 'vote:school_list' %}" class="btn btn-outline-secondary">메인 페이지로 돌아가기</a>
-</div>
 
-<style>
-.schools-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 40px;
-}
+    <style>
+        .title{ text-align:center; margin:8px 0 24px; font-weight:800; color:#1f2937; }
+        .schools-container { display:flex; justify-content:center; align-items:center; gap:40px; }
+        .vs { font-size:20px; color:#6b7280; }
 
-.school-image-container {
-    background: white;
-    border-radius: 10px;
-    padding: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    cursor: pointer;
-    transition: transform 0.2s ease;
-    width: 280px;
-}
+        .school-form { margin:0; }
+        .school-card {
+            background:#fff; border-radius:16px; padding:16px;
+            box-shadow:0 8px 20px rgba(0,0,0,.08);
+            width:300px; cursor:pointer; transition:transform .18s ease, box-shadow .18s ease;
+        }
+        .school-card:hover { transform:translateY(-2px) scale(1.02); box-shadow:0 12px 28px rgba(0,0,0,.12); }
 
-.school-image-container:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-}
+        .school-image-container { background:#ffffff; border-radius:12px; padding:10px; }
+        .school-image { width:100%; height:auto; aspect-ratio:3/2; object-fit:contain; }
+        .no-image {
+            width:100%; aspect-ratio:3/2; display:flex; align-items:center; justify-content:center;
+            color:#9ca3af; background:#f3f4f6; border-radius:8px;
+        }
 
-.school-image {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 3/2;
-    object-fit: contain;
-}
+        .school-name {
+            margin-top:12px; font-weight:800; font-size:18px; text-align:center; color:#111827;
+        }
+        .meta { margin-top:8px; display:flex; justify-content:center; gap:8px; align-items:center; }
+        .rating {
+            background:#eef2ff; color:#374151; font-weight:700;
+            border-radius:10px; padding:4px 8px; font-size:13px;
+        }
+        .tier-badge { color:#fff; font-weight:800; border-radius:10px; padding:4px 10px; font-size:13px; }
+        .tier-S { background: #d9534f; }  /* 빨강 (최상위) */
+        .tier-A { background: #f0ad4e; }  /* 주황 (상위) */
+        .tier-B { background: #0275d8; }  /* 파랑 (중상위) */
+        .tier-C { background: #5cb85c; }  /* 초록 (중위) */
+        .tier-D { background: #999; }     /* 회색 (중하위) */
+        .tier-F { background: #444; }     /* 진회색 (하위권) */
 
-.school-name {
-    margin-top: 10px;
-    font-weight: bold;
-    font-size: 16px;
-    text-align: center;
-}
-
-@media (max-width: 768px) {
-    .schools-container {
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .school-image-container {
-        width: 200px;
-        padding: 8px;
-    }
-    
-    .school-name {
-        font-size: 14px;
-        margin-top: 8px;
-    }
-}
-</style>
-
+        @media (max-width: 768px) {
+            .schools-container { flex-direction:column; gap:20px; }
+            .school-card { width:240px; padding:12px; }
+            .school-name { font-size:16px; }
+            .rating, .tier-badge { font-size:12px; }
+        }
+    </style>
 {% endblock %}
