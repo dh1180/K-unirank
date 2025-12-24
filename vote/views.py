@@ -47,6 +47,10 @@ def school_list(request):
         s.rank_diff = old_rank - s.rank
         s.rank_diff_abs = abs(s.rank_diff)
         s.tier = get_tier_label(s, all_schools)  # 티어 계산
+        if s.match_count > 0:
+            s.win_rate = round(s.win_match_count / s.match_count * 100, 2)
+        else:
+            s.win_rate = 0
 
     # 무한 스크롤 처리
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -63,6 +67,7 @@ def school_list(request):
                 'rank_diff_abs': school.rank_diff_abs,  # 추가
                 'tier': school.tier,
                 'image': school.school_image.url if school.school_image else None,
+                'win_rate': school.win_rate,
             } for school in schools_page]
             return JsonResponse({'schools': schools_data, 'has_next': schools_page.has_next()})
         except:

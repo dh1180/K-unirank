@@ -11,7 +11,8 @@
             data-school-image="{% if school.school_image %}{{ school.school_image.url }}{% endif %}"
             data-school-rank="{{ school.rank }}"
             data-school-score="{{ school.rating|floatformat:2 }}"
-            data-school-rank-diff="{{ school.rank_diff|default:0 }}">
+            data-school-rank-diff="{{ school.rank_diff|default:0 }}"
+            data-school-winrate="{{ school.win_rate }}">
             
             <!-- 왼쪽 랭킹 포인트 바 -->
             <div class="rank-strip"></div>
@@ -65,6 +66,7 @@
                 <img id="modalSchoolImage" src="" alt="School Logo" class="modal-school-logo" />
                 <div class="modal-rank-text">순위: <span id="modalRank"></span>위</div>
                 <div class="modal-score-text">점수: <span id="modalScore"></span>점</div>
+                <div class="modal-winrate">승률: <span id="modalWinRate"></span>%</div>
                 <div class="rank-diff" id="modalRankChange"></div>
             </div>
             <div class="modal-footer">
@@ -103,6 +105,7 @@
                 card.setAttribute('data-school-rank', school.rank);
                 card.setAttribute('data-school-score', parseFloat(school.score).toFixed(2));  // 소수점 2자리 강제
                 card.setAttribute('data-school-rank-diff', school.rank_diff || 0);
+                card.setAttribute('data-school-winrate', school.win_rate);
     
                 let changeSymbol = '-';
                 if (school.rank_diff > 0) changeSymbol = `▲${school.rank_diff_abs}`;
@@ -152,11 +155,13 @@
         const schoolRank = button.data('school-rank');
         const schoolScore = parseFloat(button.data('school-score')).toFixed(2);
         const rankDiff = parseInt(button.data('school-rank-diff')) || 0;
+        const schoolWinRate = button.data('school-winrate');
     
         $('#modalSchoolImage').attr('src', schoolImage || '{% static "images/default_school_logo.png" %}');
         $('#modalSchoolName').text(schoolName);
         $('#modalRank').text(schoolRank);
         $('#modalScore').text(schoolScore);
+        $('#modalWinRate').text(schoolWinRate);
     
         const rankChangeElem = $('#modalRankChange');
         if (rankDiff > 0) {
