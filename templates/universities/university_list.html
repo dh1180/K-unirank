@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>K-unirank 2.0</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .university {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 14px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        .logo {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <h1>K-unirank 2.0 대학 목록</h1>
+    <p>총 {{ universities.count }}개</p>
+
+    {% for university in universities %}
+        <div class="university">
+            {% if university.logo_path %}
+                <img
+                    class="logo"
+                    src="{% static university.logo_path %}"
+                    alt="{{ university.name }}"
+                >
+            {% endif %}
+
+            <div>
+                <strong>{{ university.name }}</strong><br>
+                <small>{{ university.address|default:"주소 없음" }}</small>
+            </div>
+        </div>
+    {% empty %}
+        <p>
+            아직 대학 데이터가 없습니다.
+            migrate_legacy_universities 명령을 실행하세요.
+        </p>
+    {% endfor %}
+</body>
+</html>
